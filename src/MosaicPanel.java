@@ -36,7 +36,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			}
 			
 			// Apply filter
-			filteredImage = filterImage(lennaImage, Filters.brightness);
+			filteredImage = filterImage(lennaImage, Filters.orderedDither);
 			
 			// Start timer (ticks every 10 microseconds)
 			timer = new Timer(10, this);
@@ -81,16 +81,42 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		{
 			// Create a copy of the image
 			BufferedImage copy = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
-
-			// Apply the operation to each pixel
-			for (int i = 0; i < src.getWidth(); i++)
-			{ 
-				for (int j = 0; j < src.getHeight(); j++) 
-				{
-					copy.setRGB(i, j, filterPixel(src.getRGB(i, j), filt));
-				}
-			}
-			return copy; 
+			
+			 int rgb = 0;
+			 int bd = 64;
+			 int w = src.getWidth();
+			 int h = src.getHeight();
+			 
+			 double[] dither = new double[]{1, 33,  9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 
+					    37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52,
+					    20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30,
+					    54, 22};
+			
+			 for (int y = 0; y < h; y++) {
+				 for (int x = 0; x < w; x++) {
+					
+				      int c = src.getRGB(x,y);
+				      int d = (int)dither[(y % 8) * 8 + (x % 8)];
+				      int l = dither.length;
+			
+				      int r = ((c >> 16) & 0xff);
+				      int g = ((c >> 8) & 0xff);
+				      int b = (c & 0xff);
+			
+				      rgb = 0x000000 | 
+				    		  closestCol(r, d, bd, l) << 16 | 
+				    		  closestCol(g, d, bd, l) << 8 | 
+				    		  closestCol(b, d, bd, l);
+				      
+				      copy.setRGB(x,y, rgb);
+				 }
+			 }
+			 return copy; 
+		}
+		
+		private static int closestCol(int col, int threshold, int quantum, int ditherSize) {
+		      int quantised = quantum * (int)(col / quantum + threshold / (ditherSize + 1f) + 0.5);
+		      return quantised > 255 ? 255 : quantised;
 		}
 		
 		// Apply a filter to a single pixel
@@ -101,12 +127,12 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			// Apply the operation to each pixel
 			switch (filt) 
 			{
-				case brightness: // O = I*2
+				case orderedDither:
 					red = getRed(rgb) * 2;
 					green = getGreen(rgb) * 2;
 					blue = getBlue(rgb) * 2;
 					break;
-				default: // O = 150
+				default:
 					red = green = blue = 150;
 					break;
 			}

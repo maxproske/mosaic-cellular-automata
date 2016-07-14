@@ -1,4 +1,4 @@
 
 public enum Filters {
-	brightness
+	orderedDither
 }
