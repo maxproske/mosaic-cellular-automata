@@ -9,7 +9,7 @@ public class Cell {
 	private int xPos;
 	private int yPos;
 	private boolean alive;
-	private Color color;
+	public Color color;
 	
 	public Cell(int x, int y, Color color, boolean alive){
 		xPos = x;

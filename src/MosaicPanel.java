@@ -19,6 +19,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		private BufferedImage lennaImage;
 		private BufferedImage filteredImage;
 		private GameOfLife gol;
+		private int tick;
 		
 		// Constructor
 		public MosaicPanel()
@@ -47,6 +48,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 			BufferedImage prepped = prepImage(filteredImage);
 			gol = startGOL(prepped);
+			tick = 10;
 		}	
 		
 		// Callback method
@@ -57,11 +59,15 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 			// Upgrade the graphics tool
 			Graphics2D g2 = (Graphics2D)g;
-			
+
+			if(tick == 0){
+				gol.tick();
+				tick = 10;
+			}else tick--;
 			gol.drawCells(g2,0,0);
 			// Draw background
 			g2.setColor(new Color(0,0,0));
-			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H));
+			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H/2));
 			
 			// Draw image 1
 			g2.setColor(new Color(255,255,255));
@@ -119,10 +125,11 @@ public class MosaicPanel extends JPanel implements ActionListener {
 					}else if(Math.random() > .75){
 						patternTick = 3;
 					}
+					//patternTick = 3;
 					for(int k=0;k<6;k++){
 						for(int l=0;l<6;l++){
-							int x = i + k;
-							int y = j + l;
+							int x = i*6 + k;
+							int y = j*6 + l;
 							switch(patternTick){
 								case 0:
 									if((l==2 && (k == 2 || k == 3 || k == 4)) || (l == 3 && (k == 1 || k == 2 || k == 3))) copy.setRGB(x, y, rgb);

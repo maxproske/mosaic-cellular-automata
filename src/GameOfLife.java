@@ -47,18 +47,19 @@ public class GameOfLife {
 	}
 	
 	private void preTick(){
-		for(int i=0;i<width;i++){
-			for(int j=0;j<height;j++){
-				Cell c = cells.get(i + width*j);
+		for(int i=0;i<width-1;i++){
+			for(int j=0;j<height-1;j++){
+				int home = i*height +j;
+				Cell c = cells.get(home);
 				c.resetNeightbors();
-				if(j > 0 && i > 0) if(cells.get(i - width - 1).isAlive()) c.incrementNeighbors();
-				if(j > 0) if(cells.get(i - width).isAlive()) c.incrementNeighbors();
-				if(j > 0 && i < width) if(cells.get(i - width + 1).isAlive()) c.incrementNeighbors();
-				if(i > 0) if(cells.get(i - 1).isAlive()) c.incrementNeighbors();
-				if(i < width) if(cells.get(i + 1).isAlive()) c.incrementNeighbors();
-				if(j < height && i > 0) if(cells.get(i + width - 1).isAlive()) c.incrementNeighbors();
-				if(j < height) if(cells.get(i + width).isAlive()) c.incrementNeighbors();
-				if(j < height && i < width) if(cells.get(i + width + 1).isAlive()) c.incrementNeighbors();
+				if(j > 0 && i > 0) if(cells.get(home - height - 1).isAlive()) c.incrementNeighbors();
+				if(j > 0) if(cells.get(home - 1).isAlive()) c.incrementNeighbors();
+				if(j > 0 && i < width) if(cells.get(home + height - 1).isAlive()) c.incrementNeighbors();
+				if(i > 0) if(cells.get(home - height).isAlive()) c.incrementNeighbors();
+				if(i < width) if(cells.get(home + height).isAlive()) c.incrementNeighbors();
+				if(j < height && i > 0) if(cells.get(home - height + 1).isAlive()) c.incrementNeighbors();
+				if(j < height) if(cells.get(home + 1).isAlive()) c.incrementNeighbors();
+				if(j < height && i < width) if(cells.get(home + height + 1).isAlive()) c.incrementNeighbors();
 			}
 		}
 	}
