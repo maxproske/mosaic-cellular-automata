@@ -4,6 +4,8 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -16,6 +18,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		private Timer timer;
 		private BufferedImage lennaImage;
 		private BufferedImage filteredImage;
+		private GameOfLife gol;
 		
 		// Constructor
 		public MosaicPanel()
@@ -41,6 +44,9 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			// Start timer (ticks every 10 microseconds)
 			timer = new Timer(10, this);
 			timer.start();
+			
+			BufferedImage prepped = prepImage(filteredImage);
+			gol = startGOL(prepped);
 		}	
 		
 		// Callback method
@@ -52,6 +58,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			// Upgrade the graphics tool
 			Graphics2D g2 = (Graphics2D)g;
 			
+			gol.drawCells(g2,0,0);
 			// Draw background
 			g2.setColor(new Color(0,0,0));
 			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H));
@@ -74,6 +81,73 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 			// Code here...
 			
+		}
+		
+		//Dump the image into GOL
+		public GameOfLife startGOL(BufferedImage img){
+			
+			ArrayList<Color> c = new ArrayList<Color>();
+			int w = img.getWidth();
+			int h = img.getHeight();
+			GameOfLife gol2 = new GameOfLife(w,h);
+			
+			for(int i=0;i<w;i++){
+				for(int j=0;j<h;j++){
+					int rgb = img.getRGB(i, j);
+					c.add(new Color(rgb));
+				}
+			}
+			gol2.readList(c);
+			return gol2;
+		}
+		
+		//Prep the image
+		public BufferedImage prepImage(BufferedImage img){
+			
+			BufferedImage copy = new BufferedImage(img.getWidth()*6,img.getHeight()*6, img.getType());
+			int w = img.getWidth();
+			int h = img.getHeight();
+			
+			for(int i=0;i<w;i++){
+				for(int j=0;j<h;j++){
+					int rgb = img.getRGB(i, j);
+					int patternTick = 0;
+					if(Math.random() > .75){
+						patternTick = 1;
+					}else if(Math.random() > .75){
+						patternTick = 2;
+					}else if(Math.random() > .75){
+						patternTick = 3;
+					}
+					for(int k=0;k<6;k++){
+						for(int l=0;l<6;l++){
+							int x = i + k;
+							int y = j + l;
+							switch(patternTick){
+								case 0:
+									if((l==2 && (k == 2 || k == 3 || k == 4)) || (l == 3 && (k == 1 || k == 2 || k == 3))) copy.setRGB(x, y, rgb);
+									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									break;
+								case 1:
+									if((k == 1 && (l == 2 || l == 3)) || (k == 2 && l == 4) || (k == 3 && l == 1) || (k == 4 && (l == 2 || l == 3))) copy.setRGB(x, y, rgb);
+									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									break;
+								case 2:
+									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && l == 1) || (k == 3 && l == 4) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
+									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									break;
+								case 3:
+									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && (l == 1 || l == 2)) || (k == 3 && (l == 3 || l == 4)) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
+									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									break;
+							}
+							if(k==0 || k==6 || l==0 || l==6) copy.setRGB(x,y, new Color(0,0,0).getRGB());
+						}
+					}
+				}
+			}
+			
+			return copy;
 		}
 		
 		// Apply a filter to a single image
