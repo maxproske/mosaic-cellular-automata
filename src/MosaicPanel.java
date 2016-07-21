@@ -13,8 +13,8 @@ import javax.swing.*;
 public class MosaicPanel extends JPanel implements ActionListener {
 	
 		// Define instance variables
-		private static final int PANEL_W = 600;
-		private static final int PANEL_H = 600;
+		private static final int PANEL_W = 860;
+		private static final int PANEL_H = 780;
 		private Timer timer;
 		private BufferedImage lennaImage;
 		private BufferedImage filteredImage;
@@ -48,7 +48,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 			BufferedImage prepped = prepImage(filteredImage);
 			gol = startGOL(prepped);
-			tick = 10;
+			tick = 5;
 		}	
 		
 		// Callback method
@@ -60,23 +60,34 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			// Upgrade the graphics tool
 			Graphics2D g2 = (Graphics2D)g;
 
-			if(tick == 0){
-				gol.tick();
-				tick = 10;
-			}else tick--;
-			gol.drawCells(g2,0,0);
+//			if(tick == 0){
+//				gol.tick();
+//				tick = 5;
+//			}else tick--;
 			// Draw background
 			g2.setColor(new Color(0,0,0));
-			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H/2));
+			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H));
+
+			gol.tick();
+			gol.drawCells(g2, -100, 50, 2);
+			g2.fillRect(0, 0, PANEL_W, 30 + lennaImage.getHeight() + 30 + filteredImage.getHeight() + 30);
+			g2.fillRect(0, 0, 20, PANEL_H);
+			g2.fillRect(PANEL_W - 20, 0, 20, PANEL_H);
+			g2.fillRect(0, PANEL_H-20, PANEL_W, 20);
 			
 			// Draw image 1
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("lenna image", 20, 45);
-			g2.drawImage(lennaImage,20,50,this);
+			g2.drawString("lenna image", 20, 25);
+			g2.drawImage(lennaImage,20,30,this);
 			
 			// Draw image 2
-			g2.drawString("filtered image", 300, 45);
-		    g2.drawImage(filteredImage,300,50,this);
+			g2.drawString("filtered image", 20, 30 + lennaImage.getHeight() + 25);
+		    g2.drawImage(filteredImage,20, 30 + lennaImage.getHeight() + 30,this);
+		    
+		    //Draw GOL
+			g2.drawString("game of life (scaled)", 20 + lennaImage.getWidth() + 20, 25);
+			g2.drawString("close up of game of life", 20, 30 + lennaImage.getHeight() + 30 + filteredImage.getHeight() + 25);
+			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,.355);
 			
 		    // Repaint
 			repaint();
@@ -100,7 +111,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			for(int i=0;i<w;i++){
 				for(int j=0;j<h;j++){
 					int rgb = img.getRGB(i, j);
-					c.add(new Color(rgb));
+					c.add(new Color(rgb, true));
 				}
 			}
 			gol2.readList(c);
@@ -110,7 +121,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		//Prep the image
 		public BufferedImage prepImage(BufferedImage img){
 			
-			BufferedImage copy = new BufferedImage(img.getWidth()*6,img.getHeight()*6, img.getType());
+			BufferedImage copy = new BufferedImage(img.getWidth()*6, img.getHeight()*6, BufferedImage.TYPE_INT_ARGB);
 			int w = img.getWidth();
 			int h = img.getHeight();
 			
@@ -125,7 +136,6 @@ public class MosaicPanel extends JPanel implements ActionListener {
 					}else if(Math.random() > .75){
 						patternTick = 3;
 					}
-					//patternTick = 3;
 					for(int k=0;k<6;k++){
 						for(int l=0;l<6;l++){
 							int x = i*6 + k;
@@ -133,22 +143,22 @@ public class MosaicPanel extends JPanel implements ActionListener {
 							switch(patternTick){
 								case 0:
 									if((l==2 && (k == 2 || k == 3 || k == 4)) || (l == 3 && (k == 1 || k == 2 || k == 3))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
 									break;
 								case 1:
 									if((k == 1 && (l == 2 || l == 3)) || (k == 2 && l == 4) || (k == 3 && l == 1) || (k == 4 && (l == 2 || l == 3))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
 									break;
 								case 2:
 									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && l == 1) || (k == 3 && l == 4) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
 									break;
 								case 3:
 									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && (l == 1 || l == 2)) || (k == 3 && (l == 3 || l == 4)) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(0,0,0).getRGB());
+									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
 									break;
 							}
-							if(k==0 || k==6 || l==0 || l==6) copy.setRGB(x,y, new Color(0,0,0).getRGB());
+							if(k==0 || k==6 || l==0 || l==6) copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
 						}
 					}
 				}
@@ -165,8 +175,8 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 			// Bayer matrix
 			int[] dithers = new int[]{ 1, 33, 9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52, 20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30, 54, 22 };		
-			int threshold = 8; // Controls the white and black points in the image	
-			int tolerance = 3; // Controls the sensitivity of the filter
+			int threshold = 16; // Controls the white and black points in the image	
+			int tolerance = 2; // Controls the sensitivity of the filter
 			
 			for (int y = 0; y < src.getHeight(); y++) 
 			{
@@ -196,19 +206,19 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		}
 		
 		// Return red pixel value
-		protected int getRed(int p)
+		public int getRed(int p)
 		{
 			return (p >>> 16) & 0xFF;
 		}
 
 		// Return green pixel value
-		protected int getGreen(int p)
+		public int getGreen(int p)
 		{
 			return (p >>> 8) & 0xFF;
 		}
 
 		// Return blue pixel value
-		protected int getBlue(int p)
+		public int getBlue(int p)
 		{
 			return p & 0xFF;
 		}
