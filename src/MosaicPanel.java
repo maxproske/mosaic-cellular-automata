@@ -81,42 +81,32 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		{
 			// Create a copy of the image
 			BufferedImage copy = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
-			
-			 int rgb = 0;
-			 int bd = 64;
-			 int w = src.getWidth();
-			 int h = src.getHeight();
 			 
-			 double[] dither = new double[]{1, 33,  9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 
+			int[] map = new int[]{1, 33,  9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 
 					    37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52,
 					    20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30,
 					    54, 22};
-			
-			 for (int y = 0; y < h; y++) {
-				 for (int x = 0; x < w; x++) {
+			 
+			 for (int y = 0; y < src.getHeight(); y++) 
+			 {
+				 for (int x = 0; x < src.getWidth(); x++) 
+				 {
+					int map_value = map[(x & 7) + ((y & 7) << 3)]; 
+					int depth = 16;
+					int fidelity = 2;
 					
-				      int c = src.getRGB(x,y);
-				      int d = (int)dither[(y % 8) * 8 + (x % 8)];
-				      int l = dither.length;
-			
-				      int r = ((c >> 16) & 0xff);
-				      int g = ((c >> 8) & 0xff);
-				      int b = (c & 0xff);
-			
-				      rgb = 0x000000 | 
-				    		  closestCol(r, d, bd, l) << 16 | 
-				    		  closestCol(g, d, bd, l) << 8 | 
-				    		  closestCol(b, d, bd, l);
-				      
-				      copy.setRGB(x,y, rgb);
+					int r = getRed(src.getRGB(x, y));
+					int g = getGreen(src.getRGB(x, y));
+					int b = getBlue(src.getRGB(x, y));
+					
+					if ((r + map_value * 256/depth) > 256*fidelity ||
+						(g + map_value * 256/depth) > 256*fidelity ||
+						(b + map_value * 256/depth) > 256*fidelity) 
+						 copy.setRGB(x, y,new Color(0,0,0).getRGB());
+					else copy.setRGB(x, y,new Color(r,g,b).getRGB());
 				 }
 			 }
 			 return copy; 
-		}
-		
-		private static int closestCol(int col, int threshold, int quantum, int ditherSize) {
-		      int quantised = quantum * (int)(col / quantum + threshold / (ditherSize + 1f) + 0.5);
-		      return quantised > 255 ? 255 : quantised;
 		}
 		
 		// Apply a filter to a single pixel
