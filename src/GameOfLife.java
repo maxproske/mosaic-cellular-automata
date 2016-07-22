@@ -31,8 +31,7 @@ public class GameOfLife {
 	public void tick(){
 		preTick();
 		for(int i=0;i<cells.size();i++){
-			Cell c = cells.get(i);
-			c.checkLife();
+			cells.get(i).checkLife();
 		}
 	}
 	

@@ -21,18 +21,8 @@ public class Cell {
 	
 	public void checkLife(){
 		
-		//alive = (alive) ? (neighbors == 3 || neighbors == 2) ? true : false : (neighbors == 3) ? true : false;
-		if(alive){
-			if(neighbors > 3 || neighbors < 2){
-				alive = false;
-			}else{
-				alive = true;
-			}
-		}else{
-			if(neighbors == 3){
-				alive = true;
-			}
-		}
+		alive = (alive) ? (neighbors == 3 || neighbors == 2) ? true : false : (neighbors == 3) ? true : false;
+
 	}
 	
 	public boolean isAlive(){
@@ -52,11 +42,8 @@ public class Cell {
 	
 	public void drawMe(Graphics2D g){
 		
-		AffineTransform tx = g.getTransform();
-		g.translate(xPos, yPos);
 		g.setColor((alive) ? color : Color.BLACK);
-		g.fillRect(0, 0, 1, 1);
-		g.setTransform(tx);
+		g.fillRect(xPos, yPos, 1, 1);
 		
 	}
 	
