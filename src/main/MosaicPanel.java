@@ -27,6 +27,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		private Timer timer;
 		private BufferedImage lennaImage;
 		private BufferedImage filteredImage;
+		private BufferedImage preparedImage;
 		private GameOfLife gol;
 		private int tick;
 		
@@ -48,16 +49,16 @@ public class MosaicPanel extends JPanel implements ActionListener {
 				e.printStackTrace();
 			}
 			
-			// Apply filter
-			filteredImage = Filter.dither(lennaImage);
-			
 			// Start timer (ticks every 10 microseconds)
 			timer = new Timer(10, this);
 			timer.start();
 			
+			// Apply dither filter
+			filteredImage = Filter.dither(lennaImage);
+
 			// Prepare filtered image
-			BufferedImage prepped = prepImage(filteredImage);
-			gol = startGOL(prepped);
+			preparedImage = prepImage(filteredImage);
+			gol = startGOL(preparedImage);
 			tick = 5;
 		}	
 		
@@ -110,7 +111,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 		}
 		
-		//Dump the image into GOL
+		// Dump the image into GOL
 		public GameOfLife startGOL(BufferedImage img){
 			
 			ArrayList<Color> c = new ArrayList<Color>();
@@ -128,7 +129,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			return gol2;
 		}
 		
-		//Prep the image
+		// Prepare the image
 		public BufferedImage prepImage(BufferedImage img){
 			
 			BufferedImage copy = new BufferedImage(img.getWidth()*6, img.getHeight()*6, BufferedImage.TYPE_INT_ARGB);
@@ -150,19 +151,44 @@ public class MosaicPanel extends JPanel implements ActionListener {
 						for(int l=0;l<6;l++){
 							int x = i*6 + k;
 							int y = j*6 + l;
+							// http://conwaylife.com/wiki/List_of_common_oscillators
 							switch(patternTick){
+								/* Toad (4x4)
+								 * ----
+								 * -###
+								 * ###-
+								 * ---
+								 */
 								case 0:
 									if((l==2 && (k == 2 || k == 3 || k == 4)) || (l == 3 && (k == 1 || k == 2 || k == 3))) copy.setRGB(x, y, rgb);
 									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
+								/* Toad (4x4)
+								 * --#-
+								 * #--#
+								 * #--#
+								 * -#--
+								 */
 								case 1:
 									if((k == 1 && (l == 2 || l == 3)) || (k == 2 && l == 4) || (k == 3 && l == 1) || (k == 4 && (l == 2 || l == 3))) copy.setRGB(x, y, rgb);
 									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
+								/* Beacon (4x4)
+								 * ##--
+								 * #---
+								 * ---#
+								 * --##
+								 */
 								case 2:
 									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && l == 1) || (k == 3 && l == 4) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
 									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
+								/* Beacon (4x4)
+								 * ##--
+								 * ##--
+								 * --##
+								 * --##
+								 */
 								case 3:
 									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && (l == 1 || l == 2)) || (k == 3 && (l == 3 || l == 4)) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
 									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
@@ -172,9 +198,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 						}
 					}
 				}
-			}
-			
+			}	
 			return copy;
 		}
-
 }
