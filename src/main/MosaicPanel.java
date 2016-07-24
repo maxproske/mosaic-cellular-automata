@@ -1,13 +1,22 @@
-import java.awt.*;
+package main;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import utilities.Filter;
+import utilities.Util;
+import objects.Cell;
+import objects.GameOfLife;
 
 @SuppressWarnings("serial")
 public class MosaicPanel extends JPanel implements ActionListener {
@@ -40,7 +49,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			}
 			
 			// Apply filter
-			filteredImage = filterImage(lennaImage, Filters.orderedDither);
+			filteredImage = Filter.dither(lennaImage);
 			
 			// Start timer (ticks every 10 microseconds)
 			timer = new Timer(10, this);
@@ -143,22 +152,22 @@ public class MosaicPanel extends JPanel implements ActionListener {
 							switch(patternTick){
 								case 0:
 									if((l==2 && (k == 2 || k == 3 || k == 4)) || (l == 3 && (k == 1 || k == 2 || k == 3))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
+									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
 								case 1:
 									if((k == 1 && (l == 2 || l == 3)) || (k == 2 && l == 4) || (k == 3 && l == 1) || (k == 4 && (l == 2 || l == 3))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
+									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
 								case 2:
 									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && l == 1) || (k == 3 && l == 4) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
+									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
 								case 3:
 									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && (l == 1 || l == 2)) || (k == 3 && (l == 3 || l == 4)) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
+									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 									break;
 							}
-							if(k==0 || k==6 || l==0 || l==6) copy.setRGB(x,y, new Color(getRed(rgb),getGreen(rgb),getBlue(rgb),0).getRGB());
+							if(k==0 || k==6 || l==0 || l==6) copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 						}
 					}
 				}
@@ -166,60 +175,5 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			
 			return copy;
 		}
-		
-		// Apply a filter to a single image
-		public BufferedImage filterImage(BufferedImage src, Filters filt)
-		{
-			// Create a copy of the image
-			BufferedImage copy = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
-			
-			// Bayer matrix
-			int[] dithers = new int[]{ 1, 33, 9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52, 20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30, 54, 22 };		
-			int threshold = 16; // Controls the white and black points in the image	
-			int tolerance = 2; // Controls the sensitivity of the filter
-			
-			for (int y = 0; y < src.getHeight(); y++) 
-			{
-				for (int x = 0; x < src.getWidth(); x++) 
-				{
-					int rgb = src.getRGB(x, y);
-					int dither = dithers[(x & 7) + ((y & 7) << 3)]; 
-					
-					// Set all pixel values above the tolerance threshold to 0
-					if ((getRed(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
-						(getGreen(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
-						(getBlue(rgb)	+ dither * 256 / threshold) > 0xff * tolerance)
-						rgb = 0;
-					
-					copy.setRGB(x, y, new Color(rgb).getRGB());
-				}
-			}
-			return copy; 
-		}
 
-		// Clip bounds
-		private int clip(int v) 
-		{
-			v = v > 255 ? 255 : v;
-			v = v < 0 ? 0 : v;
-			return v;
-		}
-		
-		// Return red pixel value
-		public int getRed(int p)
-		{
-			return (p >>> 16) & 0xFF;
-		}
-
-		// Return green pixel value
-		public int getGreen(int p)
-		{
-			return (p >>> 8) & 0xFF;
-		}
-
-		// Return blue pixel value
-		public int getBlue(int p)
-		{
-			return p & 0xFF;
-		}
 }

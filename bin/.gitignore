@@ -1,5 +1,10 @@
+/Cell.class
 /Filters.class
+/GameOfLife.class
 /MosaicApp.class
 /MosaicPanel.class
-/Cell.class
-/GameOfLife.class
+/Filter.class
+/Util.class
+/utilities/
+/main/
+/objects/

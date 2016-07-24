@@ -1,3 +1,5 @@
+package main;
+
 @SuppressWarnings("serial")
 public class MosaicApp extends javax.swing.JFrame 
 {
@@ -17,7 +19,7 @@ public class MosaicApp extends javax.swing.JFrame
 		this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
 		
 		// Set location of the window
-		this.setLocation(200,400);
+		this.setLocation(300,150);
 		
 		// Instantiate new panel object
 		this.add(new MosaicPanel());
