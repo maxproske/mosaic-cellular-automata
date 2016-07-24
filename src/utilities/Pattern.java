@@ -7,10 +7,10 @@ public class Pattern {
 		blinker,
 		toad,
 		beacon,
-		pulsar,
-		pentadecathlon,
 		clock,
-		bipole
+		bipole,
+		pulsar,
+		pentadecathlon
 	}
 	
 	// http://conwaylife.com/wiki/Agar
@@ -31,6 +31,10 @@ public class Pattern {
 		weekender,
 		s_37P4H1V0
 	}
+	
+	// TODO: Functions need to know width, height, and number of periods
+	
+	// TODO: Is it really necessary to have cases for periods? Can we just run a random number of frames before the program starts?
 	
 	// Return oscillator pattern as a 2D array
 	public int[][] getOscillator(Oscillator o, int period){
@@ -103,6 +107,14 @@ public class Pattern {
 						{0,1,0,1,0},
 						{1,0,0,0,0},
 						{1,1,0,0,0}};
+					default: return null;
+				}
+			case pulsar:
+				switch(period){
+					default: return null;
+				}
+			case pentadecathlon:
+				switch(period){
 					default: return null;
 				}
 			default:
