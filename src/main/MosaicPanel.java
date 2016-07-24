@@ -55,6 +55,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			timer = new Timer(10, this);
 			timer.start();
 			
+			// Prepare filtered image
 			BufferedImage prepped = prepImage(filteredImage);
 			gol = startGOL(prepped);
 			tick = 5;
