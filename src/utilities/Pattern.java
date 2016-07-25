@@ -33,18 +33,22 @@ public class Pattern {
 	}
 	
 	// Return oscillator pattern as a 2D array
-	public int[][] getOscillator(Oscillator o, int period){
+	public static int[][] getOscillator(Oscillator o, int period){
 		switch(o){
 			case blinker:
 				switch(period){
 					case 0: return new int[][]{
-						{0,0,0},
-						{1,1,1},
-						{0,0,0}};
+						{0,0,0,0,0},
+						{0,0,0,0,0},
+						{0,1,1,1,0},
+						{0,0,0,0,0},
+						{0,0,0,0,0}};
 					case 1: return new int[][]{
-						{0,1,0},
-						{0,1,0},
-						{0,1,0}};
+						{0,0,0,0,0},
+						{0,0,1,0,0},
+						{0,0,1,0,0},
+						{0,0,1,0,0},
+						{0,0,0,0,0}};
 					default: return null;
 				}
 			case toad:
