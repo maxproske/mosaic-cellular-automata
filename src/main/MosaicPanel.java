@@ -15,10 +15,11 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import utilities.Filter;
+import utilities.Pattern;
 import utilities.Util;
 import objects.Cell;
 import objects.GameOfLife;
-import utilities.Pattern;
+import static utilities.Pattern.Oscillator;
 
 @SuppressWarnings("serial")
 public class MosaicPanel extends JPanel implements ActionListener {
@@ -131,61 +132,54 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			return gol2;
 		}
 		
-		
-		// Prepare the image
-		public BufferedImage prepImage(BufferedImage src){
+		// Get random pattern
+		public int[][] getRandomOscillator()
+		{
+			// Get period
+			int period = Math.random() < 0.5 ? 0 : 1;
 			
 			// Get pattern
-			int[][] pattern = Pattern.getOscillator(Pattern.Oscillator.toad,0);
-			int cols = pattern[0].length;
-			int rows = pattern.length;		
+			double random = Math.random(); 
+			Pattern.Oscillator osc = (random < 0.333) ? Pattern.Oscillator.toad : (random < 0.666) ? Pattern.Oscillator.beacon : Pattern.Oscillator.clock;
+
+			return Pattern.getOscillator(osc,period);
+		}
+		
+		public BufferedImage prepImage(BufferedImage src)
+		{
+			// Get pattern dimensions
+			int cols = Pattern.getOscillator(Pattern.Oscillator.toad,0)[0].length;
+			int rows = Pattern.getOscillator(Pattern.Oscillator.toad,0).length;		
 			
+			// Prepare the image
 			BufferedImage copy = new BufferedImage(src.getWidth()*cols, src.getHeight()*rows, BufferedImage.TYPE_INT_ARGB);
 			int w = src.getWidth();
 			int h = src.getHeight();
 			
-			for(int y=0; y<h; y++)
+			for(int x=0; x<w; x++)
 			{
-				for(int x=0; x<w; x++)
+				for(int y=0; y<h; y++)
 				{
-					// Get rgb
-					int rgb = src.getRGB(x, y);
-					
-					// Get period
-					int period = Math.random() < 0.5 ? 0 : 1;
-					
-					// Get pattern
-					Pattern.Oscillator osc;
-					double random = Math.random(); 
-					if (random < 0.333) { 
-						osc = Pattern.Oscillator.toad; 
-					} else if (random < 0.666) { 
-						osc = Pattern.Oscillator.beacon; 
-					} else { 
-						osc = Pattern.Oscillator.clock; 
-					}
-					
-					pattern = Pattern.getOscillator(osc,period);
-				
-					for(int i=0; i<rows-1; i++) 
+					// Get random pattern
+					int[][] pattern = getRandomOscillator();
+
+					for(int i=0; i<cols; i++)
 					{
-						// Get yPos
-						int yPos = y*rows+i;
-						
-						for(int j=0; j<cols-1; j++) 
+						// Get x-position
+						int xPos = x*cols+i;
+					
+						for(int j=0; j<rows; j++) 
 						{
-							// Get xPos
-							int xPos = x*cols+j;
+							// Get y-position
+							int yPos = y*rows+j;
 							
-							// Set alpha
-							if(pattern[i][j] == 1) {
-								copy.setRGB(xPos, yPos, rgb);
-							} else {
-								copy.setRGB(xPos, yPos, rgb & 0xffffff);
-							}
+							// Calculate alpha value
+							int rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
+							
+							// Set pixel value
+							copy.setRGB(xPos, yPos, rgb);
 						}
 					}
-					
 				}
 			}	
 			return copy;
