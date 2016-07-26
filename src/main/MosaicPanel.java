@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
@@ -99,7 +100,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		    //Draw GOL
 			g2.drawString("game of life (scaled)", 20 + lennaImage.getWidth() + 20, 25);
 			g2.drawString("close up of game of life", 20, 30 + lennaImage.getHeight() + 30 + filteredImage.getHeight() + 25);
-			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,1);
+			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.355);
 			
 		    // Repaint
 			repaint();
@@ -130,43 +131,62 @@ public class MosaicPanel extends JPanel implements ActionListener {
 			return gol2;
 		}
 		
+		
 		// Prepare the image
 		public BufferedImage prepImage(BufferedImage src){
 			
-			BufferedImage copy = new BufferedImage(src.getWidth()*5, src.getHeight()*5, BufferedImage.TYPE_INT_ARGB);
-			int w = src.getWidth();
-			int h = src.getHeight();	
+			// Get pattern
+			int[][] pattern = Pattern.getOscillator(Pattern.Oscillator.toad,0);
+			int cols = pattern[0].length;
+			int rows = pattern.length;		
 			
-			for(int x=0; x<w; x++)
+			BufferedImage copy = new BufferedImage(src.getWidth()*cols, src.getHeight()*rows, BufferedImage.TYPE_INT_ARGB);
+			int w = src.getWidth();
+			int h = src.getHeight();
+			
+			for(int y=0; y<h; y++)
 			{
-				
-				for(int y=0; y<h; y++)
+				for(int x=0; x<w; x++)
 				{
-					
-					// Get rgb value
+					// Get rgb
 					int rgb = src.getRGB(x, y);
 					
-					// Initialize pattern array
-					int[][] pattern = Pattern.getOscillator(Pattern.Oscillator.blinker,0);
+					// Get period
+					int period = Math.random() < 0.5 ? 0 : 1;
 					
-					for(int i=0; i<5; i++) 
+					// Get pattern
+					Pattern.Oscillator osc;
+					double random = Math.random(); 
+					if (random < 0.333) { 
+						osc = Pattern.Oscillator.toad; 
+					} else if (random < 0.666) { 
+						osc = Pattern.Oscillator.beacon; 
+					} else { 
+						osc = Pattern.Oscillator.clock; 
+					}
+					
+					pattern = Pattern.getOscillator(osc,period);
+				
+					for(int i=0; i<rows-1; i++) 
 					{
-						for(int j=0; j<5; j++) 
+						// Get yPos
+						int yPos = y*rows+i;
+						
+						for(int j=0; j<cols-1; j++) 
 						{
-							int xPos = x*5 + i;
-							int yPos = y*5 + j;
+							// Get xPos
+							int xPos = x*cols+j;
 							
+							// Set alpha
 							if(pattern[i][j] == 1) {
-								copy.setRGB(xPos, yPos, new Color(255,255,255,255).getRGB());
-								if (x < 5 && y < 5) System.out.println("white at [" + (xPos) + "," + (yPos) + "]");
+								copy.setRGB(xPos, yPos, rgb);
 							} else {
-								copy.setRGB(xPos, yPos, new Color(0,0,0,0).getRGB());
-								if (x < 5 && y < 5) System.out.println("black at [" + (xPos) + "," + (yPos) + "]");
+								copy.setRGB(xPos, yPos, rgb & 0xffffff);
 							}
 						}
 					}
+					
 				}
-				
 			}	
 			return copy;
 		}
