@@ -17,6 +17,7 @@ import utilities.Filter;
 import utilities.Util;
 import objects.Cell;
 import objects.GameOfLife;
+import utilities.Pattern;
 
 @SuppressWarnings("serial")
 public class MosaicPanel extends JPanel implements ActionListener {
@@ -98,7 +99,7 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		    //Draw GOL
 			g2.drawString("game of life (scaled)", 20 + lennaImage.getWidth() + 20, 25);
 			g2.drawString("close up of game of life", 20, 30 + lennaImage.getHeight() + 30 + filteredImage.getHeight() + 25);
-			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,.355);
+			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,1);
 			
 		    // Repaint
 			repaint();
@@ -130,74 +131,42 @@ public class MosaicPanel extends JPanel implements ActionListener {
 		}
 		
 		// Prepare the image
-		public BufferedImage prepImage(BufferedImage img){
+		public BufferedImage prepImage(BufferedImage src){
 			
-			BufferedImage copy = new BufferedImage(img.getWidth()*6, img.getHeight()*6, BufferedImage.TYPE_INT_ARGB);
-			int w = img.getWidth();
-			int h = img.getHeight();
+			BufferedImage copy = new BufferedImage(src.getWidth()*5, src.getHeight()*5, BufferedImage.TYPE_INT_ARGB);
+			int w = src.getWidth();
+			int h = src.getHeight();	
 			
-			for(int i=0;i<w;i++){
-				for(int j=0;j<h;j++){
-					int rgb = img.getRGB(i, j);
-					int patternTick = 0;
-					if(Math.random() > .75){
-						patternTick = 1;
-					}else if(Math.random() > .75){
-						patternTick = 2;
-					}else if(Math.random() > .75){
-						patternTick = 3;
-					}
-					for(int k=0;k<6;k++){
-						for(int l=0;l<6;l++){
-							int x = i*6 + k;
-							int y = j*6 + l;
-							// http://conwaylife.com/wiki/List_of_common_oscillators
-							switch(patternTick){
-								/* Toad (4x4)
-								 * ----
-								 * -###
-								 * ###-
-								 * ---
-								 */
-								case 0:
-									if((l==2 && (k == 2 || k == 3 || k == 4)) || (l == 3 && (k == 1 || k == 2 || k == 3))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
-									break;
-								/* Toad (4x4)
-								 * --#-
-								 * #--#
-								 * #--#
-								 * -#--
-								 */
-								case 1:
-									if((k == 1 && (l == 2 || l == 3)) || (k == 2 && l == 4) || (k == 3 && l == 1) || (k == 4 && (l == 2 || l == 3))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
-									break;
-								/* Beacon (4x4)
-								 * ##--
-								 * #---
-								 * ---#
-								 * --##
-								 */
-								case 2:
-									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && l == 1) || (k == 3 && l == 4) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
-									break;
-								/* Beacon (4x4)
-								 * ##--
-								 * ##--
-								 * --##
-								 * --##
-								 */
-								case 3:
-									if((k == 1 && (l == 1 || l == 2)) || (k == 2 && (l == 1 || l == 2)) || (k == 3 && (l == 3 || l == 4)) || (k == 4 && (l == 3 || l == 4))) copy.setRGB(x, y, rgb);
-									else copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
-									break;
+			for(int x=0; x<w; x++)
+			{
+				
+				for(int y=0; y<h; y++)
+				{
+					
+					// Get rgb value
+					int rgb = src.getRGB(x, y);
+					
+					// Initialize pattern array
+					int[][] pattern = Pattern.getOscillator(Pattern.Oscillator.blinker,0);
+					
+					for(int i=0; i<5; i++) 
+					{
+						for(int j=0; j<5; j++) 
+						{
+							int xPos = x*5 + i;
+							int yPos = y*5 + j;
+							
+							if(pattern[i][j] == 1) {
+								copy.setRGB(xPos, yPos, new Color(255,255,255,255).getRGB());
+								if (x < 5 && y < 5) System.out.println("white at [" + (xPos) + "," + (yPos) + "]");
+							} else {
+								copy.setRGB(xPos, yPos, new Color(0,0,0,0).getRGB());
+								if (x < 5 && y < 5) System.out.println("black at [" + (xPos) + "," + (yPos) + "]");
 							}
-							if(k==0 || k==6 || l==0 || l==6) copy.setRGB(x,y, new Color(Util.getRed(rgb),Util.getGreen(rgb),Util.getBlue(rgb),0).getRGB());
 						}
 					}
 				}
+				
 			}	
 			return copy;
 		}
