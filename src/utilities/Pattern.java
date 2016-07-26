@@ -32,9 +32,18 @@ public class Pattern {
 		s_37P4H1V0
 	}
 	
-	// TODO: Functions need to know width, height, and number of periods
-	
-	// TODO: Is it really necessary to have cases for periods? Can we just run a random number of frames before the program starts?
+	// Get random oscillator
+	public static int[][] getRandomOscillator()
+	{
+		// Get pattern
+		double random = Math.random(); 
+		Pattern.Oscillator osc = (random < 0.333) ? Pattern.Oscillator.toad : (random < 0.666) ? Pattern.Oscillator.beacon : Pattern.Oscillator.clock;
+
+		// Get period
+		int period = Math.random() < 0.5 ? 0 : 1;
+		
+		return Pattern.getOscillator(osc,period);
+	}
 	
 	// Return oscillator pattern as a 2D array
 	public static int[][] getOscillator(Oscillator o, int period){

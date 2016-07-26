@@ -1,7 +1,9 @@
 package main;
 
+import javax.swing.JFrame;
+
 @SuppressWarnings("serial")
-public class MosaicApp extends javax.swing.JFrame 
+public class MosaicApp extends JFrame
 {
 	//Main method of the MosaicApp program.
 	public static void main(String[] args) 

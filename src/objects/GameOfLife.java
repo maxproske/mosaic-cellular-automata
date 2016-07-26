@@ -3,6 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GameOfLife {
@@ -11,11 +12,19 @@ public class GameOfLife {
 	private int width;
 	private int height;
 	
-	public GameOfLife(int w, int h){
+	public GameOfLife(BufferedImage src)
+	{
+		ArrayList<Color> c = new ArrayList<Color>();
+		width = src.getWidth();
+		height = src.getHeight();
 		
-		width = w;
-		height = h;
-		
+		for(int i=0;i<width;i++){
+			for(int j=0;j<height;j++){
+				int rgb = src.getRGB(i, j);
+				c.add(new Color(rgb, true));
+			}
+		}
+		readList(c);
 	}
 	
 	public void readList(ArrayList<Color> c){
