@@ -76,12 +76,12 @@ public class MosaicPanel extends JPanel {
 		    
 		    // Scaled down game of life
 			g2.drawString("game of life (scaled)", 20 + lennaImage.getWidth() + 20, 25);
-			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.355);
+			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.355,0,0,lennaImage.getWidth(),lennaImage.getHeight());
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));
 			g2.drawString("close up of game of life", 20, 30*2 + lennaImage.getHeight()*2 + 25);
-			gol.drawCells(g2, 20, 30*2 + lennaImage.getHeight()*2 + 35, 2);
+			gol.drawCells(g2, 20, 30*2 + lennaImage.getHeight()*2 + 35, 2,10,0,69,15);
 			
 			// Tick
 			gol.tick();
