@@ -35,4 +35,43 @@ public class Filter {
 		}
 		return copy; 
 	}
+	
+	// Apply an alpha matte to a single image
+	public static BufferedImage matteAlpha(BufferedImage src)
+	{	
+		// Prepare image
+		BufferedImage copy = new BufferedImage(src.getWidth()*6, src.getHeight()*6, BufferedImage.TYPE_INT_ARGB);
+		int w = src.getWidth();
+		int h = src.getHeight();
+		
+		for(int x=0; x<w; x++)
+		{
+			for(int y=0; y<h; y++)
+			{
+				// Prepare pattern
+				int[][] pattern = Pattern.getRandomOscillator();
+				int cols = pattern[0].length;
+				int rows = pattern.length;
+
+				for(int i=0; i<cols; i++)
+				{
+					// Get x-position
+					int xPos = x*cols+i;
+				
+					for(int j=0; j<rows; j++) 
+					{
+						// Get y-position
+						int yPos = y*rows+j;
+						
+						// Calculate alpha value
+						int rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
+						
+						// Set pixel value
+						copy.setRGB(xPos, yPos, rgb);
+					}
+				}
+			}
+		}	
+		return copy;
+	}
 }
