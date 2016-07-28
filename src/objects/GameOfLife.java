@@ -39,13 +39,6 @@ public class GameOfLife {
 		
 	}
 	
-	public void tick(){
-		preTick();
-		for(int i=0;i<cells.size();i++){
-			cells.get(i).checkLife();
-		}
-	}
-	
 	public void drawCells(Graphics2D g, int x, int y, double s){
 		AffineTransform tx = g.getTransform();
 		g.translate(x, y);
@@ -57,21 +50,21 @@ public class GameOfLife {
 		g.setTransform(tx);
 	}
 	
-	
-	private void preTick(){
+	public void tick(){
 		for(int i=0;i<width-1;i++){
 			for(int j=0;j<height-1;j++){
 				int home = i*height + j;
 				Cell c = cells.get(home);
 				c.resetNeightbors();
-				if(j > 0 && i > 0) if(cells.get(home - height - 1).isAlive()) c.incrementNeighbors();
-				if(j > 0) if(cells.get(home - 1).isAlive()) c.incrementNeighbors();
+				if(j > 0 && i > 0) if(cells.get(home - height - 1).wasAlive()) c.incrementNeighbors();
+				if(j > 0) if(cells.get(home - 1).wasAlive()) c.incrementNeighbors();
 				if(j > 0 && i < width) if(cells.get(home + height - 1).isAlive()) c.incrementNeighbors();
-				if(i > 0) if(cells.get(home - height).isAlive()) c.incrementNeighbors();
+				if(i > 0) if(cells.get(home - height).wasAlive()) c.incrementNeighbors();
 				if(i < width) if(cells.get(home + height).isAlive()) c.incrementNeighbors();
-				if(j < height && i > 0) if(cells.get(home - height + 1).isAlive()) c.incrementNeighbors();
+				if(j < height && i > 0) if(cells.get(home - height + 1).wasAlive()) c.incrementNeighbors();
 				if(j < height) if(cells.get(home + 1).isAlive()) c.incrementNeighbors();
 				if(j < height && i < width) if(cells.get(home + height + 1).isAlive()) c.incrementNeighbors();
+				c.checkLife();
 			}
 		}
 	}

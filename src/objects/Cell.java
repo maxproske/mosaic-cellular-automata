@@ -12,23 +12,31 @@ public class Cell {
 	private int yPos;
 	private boolean alive;
 	public Color color;
+	private boolean wasAlive;
 	
 	public Cell(int x, int y, Color color, boolean alive){
 		xPos = x;
 		yPos = y;
 		this.color = color;
 		this.alive = alive;
+		wasAlive = alive;
 		neighbors = 0;
 	}
 	
 	public void checkLife(){
 		
+		wasAlive = (alive) ? true : false;
+		
 		alive = (alive) ? (neighbors == 3 || neighbors == 2) ? true : false : (neighbors == 3) ? true : false;
-
+		
 	}
 	
 	public boolean isAlive(){
 		return alive;
+	}
+	
+	public boolean wasAlive(){
+		return wasAlive;
 	}
 	
 	public void resetNeightbors(){
