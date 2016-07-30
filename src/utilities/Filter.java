@@ -49,7 +49,7 @@ public class Filter {
 			for(int y=0; y<h; y++)
 			{
 				// Prepare pattern
-				int[][] pattern = Pattern.getRandomOscillator();
+				int[][] pattern = Pattern.getRandomOscillator(1,1);
 				int cols = pattern[0].length;
 				int rows = pattern.length;
 

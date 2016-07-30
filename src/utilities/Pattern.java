@@ -3,191 +3,282 @@ package utilities;
 public class Pattern {
 
 	// http://conwaylife.com/wiki/List_of_common_oscillators
-	public enum Oscillator {
-		blinker,
-		toad,
+	public enum Oscillator_1x1 {
 		beacon,
 		clock,
-		bipole,
-		pulsar,
-		pentadecathlon
+		toad
+	}
+	public enum Oscillator_2x1 {
+		killer_toads,
+		cis_beacon_and_cap
+	}
+	public enum Oscillator_2x2 {
+		figure_eight,
+		a_for_all
+	}
+	public enum Oscillator_2x3 {
+		pentadecathlon,
+		coes_p8
+	}
+	public enum Oscillator_2x4 {
+		caterer_on_figure_eight,
+		queen_bee_shuttle
 	}
 	
-	// http://conwaylife.com/wiki/Agar
-	public enum Agar {
-		houndstooth_agar,
-		squaredance,
-		venetian_blinds,
-		chicken_wire,
-		phoenix
+	// http://conwaylife.com/wiki/Eater
+	public enum Eater {
 	}
 
 	// http://conwaylife.com/wiki/Spaceship
 	public enum Spaceship {
-		glider,
-		lightweight_spaceship,
-		s_30P5H2V0,
-		s_25P3H1V0_2,
-		weekender,
-		s_37P4H1V0
 	}
 	
 	// Get random oscillator
-	public static int[][] getRandomOscillator()
+	public static int[][] getRandomOscillator(int w, int h)
 	{
 		// Get pattern
 		double random = Math.random(); 
-		Pattern.Oscillator osc = (random < 0.333) ? Pattern.Oscillator.toad : (random < 0.666) ? Pattern.Oscillator.beacon : Pattern.Oscillator.clock;
 
-		// Get period
-		int period = Math.random() < 0.5 ? 0 : 1;
-		
-		return Pattern.getOscillator(osc,period);
+		if(w == 1 && h == 1) {
+			Oscillator_1x1 osc = (random < 0.333) ? Oscillator_1x1.toad : (random < 0.666) ? Oscillator_1x1.beacon : Oscillator_1x1.clock;
+			return getOscillator(osc);
+		} else if (w == 2 & h == 1) {
+			Oscillator_2x1 osc = (random < 0.5) ? Oscillator_2x1.killer_toads : Oscillator_2x1.cis_beacon_and_cap;
+			return getOscillator(osc);
+		} else if (w == 2 && h == 2){
+			Oscillator_2x2 osc = (random < 0.5) ? Oscillator_2x2.figure_eight : Oscillator_2x2.a_for_all;
+			return getOscillator(osc);
+		} else if (w == 2 && h == 3){
+			Oscillator_2x3 osc = (random < 0.5) ? Oscillator_2x3.pentadecathlon : Oscillator_2x3.coes_p8;
+			return getOscillator(osc);
+		} else if (w == 2 && h == 4){
+			Oscillator_2x4 osc = (random < 0.5) ? Oscillator_2x4.caterer_on_figure_eight : Oscillator_2x4.queen_bee_shuttle;
+			return getOscillator(osc);
+		}
+		return null;
 	}
 	
-	// Return oscillator pattern as a 2D array
-	public static int[][] getOscillator(Oscillator o, int period){
-		switch(o){
-			case blinker:
-				switch(period){
-					case 0: return new int[][]{
-						{0,0,0,0,0},
-						{0,0,0,0,0},
-						{0,1,1,1,0},
-						{0,0,0,0,0},
-						{0,0,0,0,0}};
-					case 1: return new int[][]{
-						{0,0,0,0,0},
-						{0,0,1,0,0},
-						{0,0,1,0,0},
-						{0,0,1,0,0},
-						{0,0,0,0,0}};
-					default: return null;
-				}
+	// Return 1x1 oscillator pattern as a 2D array
+	public static int[][] getOscillator(Oscillator_1x1 osc){
+		switch(osc){
 			case toad:
-				switch(period){
-					case 0: return new int[][]{
-						{0,0,0,0,0,0},
-						{0,0,1,0,0,0},
-						{0,0,1,1,0,0},
-						{0,0,1,1,0,0},
-						{0,0,0,1,0,0},
-						{0,0,0,0,0,0}};
-					case 1: return new int[][]{
-						{0,0,0,0,0,0},
-						{0,0,1,1,0,0},
-						{0,1,0,0,0,0},
-						{0,0,0,0,1,0},
-						{0,0,1,1,0,0},
-						{0,0,0,0,0,0}};
-					default: return null;
-				}
+				return new int[][]{
+					{0,0,0,0,0,0},
+					{0,0,1,0,0,0},
+					{0,0,1,1,0,0},
+					{0,0,1,1,0,0},
+					{0,0,0,1,0,0},
+					{0,0,0,0,0,0}};
 			case beacon:
-				switch(period){
-					case 0: return new int[][]{
-						{0,0,0,0,0,0},
-						{0,1,1,0,0,0},
-						{0,1,1,0,0,0},
-						{0,0,0,1,1,0},
-						{0,0,0,1,1,0},
-						{0,0,0,0,0,0}};
-					case 1: return new int[][]{
-						{0,0,0,0,0,0},
-						{0,1,1,0,0,0},
-						{0,1,0,0,0,0},
-						{0,0,0,0,1,0},
-						{0,0,0,1,1,0},
-						{0,0,0,0,0,0}};
-					default: return null;
-				}
+				return new int[][]{
+					{0,0,0,0,0,0},
+					{0,1,1,0,0,0},
+					{0,1,1,0,0,0},
+					{0,0,0,1,1,0},
+					{0,0,0,1,1,0},
+					{0,0,0,0,0,0}};
 			case clock:
-				switch(period){
-					case 0: return new int[][]{
-						{0,0,0,0,0,0},
-						{0,0,1,0,0,0},
-						{0,0,0,1,1,0},
-						{0,1,1,0,0,0},
-						{0,0,0,1,0,0},
-						{0,0,0,0,0,0}};
-					case 1: return new int[][]{
-						{0,0,0,0,0,0},
-						{0,0,0,1,0,0},
-						{0,1,0,1,0,0},
-						{0,0,1,0,1,0},
-						{0,0,1,0,0,0},
-						{0,0,0,0,0,0}};
-					default: return null;
-				}
-			case bipole:
-				switch(period){
-					case 0: return new int[][]{
-						{0,0,0,0,0,0,0},
-						{0,0,0,0,1,1,0},
-						{0,0,0,1,0,1,0},
-						{0,0,0,0,0,0,0},
-						{0,1,0,1,0,0,0},
-						{0,1,1,0,0,0,0},
-						{0,0,0,0,0,0,0}};
-					case 1: return new int[][]{
-						{0,0,0,0,0,0,0},
-						{0,0,0,0,1,1,0},
-						{0,0,0,0,0,1,0},
-						{0,0,1,0,1,0,0},
-						{0,1,0,0,0,0,0},
-						{0,1,1,0,0,0,0},
-						{0,0,0,0,0,0,0}};
-					default: return null;
-				}
-			case pulsar:
-				switch(period){
-					default: return null;
-				}
-			case pentadecathlon:
-				switch(period){
-					default: return null;
-				}
+				return new int[][]{
+					{0,0,0,0,0,0},
+					{0,0,1,0,0,0},
+					{0,0,0,1,1,0},
+					{0,1,1,0,0,0},
+					{0,0,0,1,0,0},
+					{0,0,0,0,0,0}};
 			default:
 				return null;
 		}
 	}
 	
-	// Return agar pattern as a 2D array
-	public int[][] getAgar(Agar a, int period){
-		switch(a){
-			case houndstooth_agar:
-				break;
-			case squaredance:
-				break;
-			case venetian_blinds:
-				break;
-			case chicken_wire:
-				break;
-			case phoenix:
-				break;
+	// Return 2x1 oscillator pattern as a 2D array
+	public static int[][] getOscillator(Oscillator_2x1 osc){
+		switch(osc){
+			case killer_toads:
+				return new int[][]{
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0},
+					{0,0,1,1,1,0},
+					{0,1,1,1,0,0},
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0},
+					{0,1,1,1,0,0},
+					{0,0,1,1,1,0},
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0}};
+			case cis_beacon_and_cap:
+				return new int[][]{
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0},
+					{0,0,0,1,1,0},
+					{0,0,0,0,1,0},
+					{0,1,0,0,0,0},
+					{0,1,1,0,0,0},
+					{0,0,0,0,0,0},
+					{0,1,1,1,1,0},
+					{0,1,0,0,1,0},
+					{0,0,1,1,0,0},
+					{0,0,0,0,0,0},
+					{0,0,0,0,0,0}};
 			default:
-				break;
+				return null;
 		}
-		return null;
 	}
 	
-	// Return spaceship pattern as a 2D array
-	public int[][] getSpaceship(Spaceship s, int period){
-		switch(s){
-			case glider:
-				break;
-			case lightweight_spaceship:
-				break;
-			case s_30P5H2V0:
-				break;
-			case s_25P3H1V0_2:
-				break;
-			case weekender:
-				break;
-			case s_37P4H1V0:
-				break;
+	// Return 2x2 oscillator pattern as a 2D array
+	public static int[][] getOscillator(Oscillator_2x2 osc){
+		switch(osc){
+			case figure_eight:
+				return new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,1,0,0,0,0,0},
+					{0,0,0,0,0,0,0,1,0,0,0,0},
+					{0,0,0,0,1,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0}};
+			case a_for_all:
+				return new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,1,0,0,0,0,0},
+					{0,0,0,0,1,0,0,1,0,0,0,0},
+					{0,0,0,0,1,1,1,1,0,0,0,0},
+					{0,0,1,0,1,0,0,1,0,1,0,0},
+					{0,1,0,0,0,0,0,0,0,0,1,0},
+					{0,1,0,0,0,0,0,0,0,0,1,0},
+					{0,0,1,0,1,0,0,1,0,1,0,0},
+					{0,0,0,0,1,1,1,1,0,0,0,0},
+					{0,0,0,0,1,0,0,1,0,0,0,0},
+					{0,0,0,0,0,1,1,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0}};
 			default:
-				break;
+				return null;
 		}
-		return null;
+	}
+	
+	// Return 2x3 oscillator pattern as a 2D array
+	public static int[][] getOscillator(Oscillator_2x3 osc){
+		switch(osc){
+			case pentadecathlon:
+				return new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,1,0,1,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,1,0,1,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0}};
+			case coes_p8:
+				return new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,1,0,0,0,0},
+					{0,0,0,1,0,0,1,1,0,0,0,0},
+					{0,0,0,0,0,0,1,0,0,0,0,0},
+					{0,0,0,1,1,1,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0}};
+			default:
+				return null;
+		}
+	}
+
+	// Return 2x4 oscillator pattern as a 2D array
+	public static int[][] getOscillator(Oscillator_2x4 osc){
+		switch(osc){
+			case caterer_on_figure_eight:
+				return new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,1,0,0,0,0,0},
+					{0,0,0,0,0,0,0,1,0,0,0,0},
+					{0,0,0,0,1,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,1,1,0,0,0,0},
+					{0,0,0,1,0,0,0,0,0,0,0,0},
+					{0,0,0,1,0,0,0,0,1,0,0,0},
+					{0,0,0,0,1,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,1,1,0,0,0,0},
+					{0,0,0,0,0,0,0,1,0,0,0,0},
+					{0,0,0,0,0,0,0,1,0,0,0,0},
+					{0,0,0,0,0,0,0,1,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},};
+			case queen_bee_shuttle:
+				return new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,1,1,0,0,0,0,0,0},
+					{0,0,0,0,1,1,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,1,0,1,0,0,0,0,0},
+					{0,0,0,1,0,0,0,1,0,0,0,0},
+					{0,0,0,0,1,1,1,0,0,0,0,0},
+					{0,0,1,1,0,0,0,1,1,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,1,1,0,0,0,0,0,0},
+					{0,0,0,0,1,1,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0}};
+			default:
+				return null;
+		}
 	}
 }
