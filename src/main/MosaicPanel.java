@@ -26,7 +26,8 @@ public class MosaicPanel extends JPanel {
 		private BufferedImage lennaImage;
 		private BufferedImage ditheredImage;
 		private BufferedImage preparedImage;
-		private BufferedImage mergeImage;
+		private BufferedImage populationImage;
+		private BufferedImage similarImage;
 		private GameOfLife gol;
 		
 		// Constructor
@@ -62,11 +63,14 @@ public class MosaicPanel extends JPanel {
 			// Apply dither filter
 			ditheredImage = Filter.dither(lennaImage);
 	
-			// Merge dither
-			mergeImage = Filter.mergeMatte(ditheredImage);
+			// Population matte
+			populationImage = Filter.populationMatte(ditheredImage);
+			
+			// Similar matte
+			similarImage = Filter.similarMatte(populationImage);
 			
 			// Apply alpha matte
-			preparedImage = Filter.matteAlpha(ditheredImage,mergeImage);
+			preparedImage = Filter.matteAlpha(ditheredImage,populationImage);
 		}
 		
 		// Callback method
@@ -84,23 +88,23 @@ public class MosaicPanel extends JPanel {
 			
 			// Original image preview
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("merge matte", 20, 25);
-			g2.drawImage(mergeImage,20,30,this);
+			g2.drawString("1. population matte", 20, 25);
+			g2.drawImage(populationImage,20,30,this);
 			
 			// Filtered image preview
-			g2.drawString("filtered image", 20, 30 + imgHeight + 25);
-		    g2.drawImage(ditheredImage,20, 30 + imgHeight + 30,this);
+			g2.drawString("2. similar matte", 20, 30 + imgHeight + 25);
+		    g2.drawImage(similarImage,20, 30 + imgHeight + 30,this);
 		    
 		    // Scaled down game of life
 			g2.drawString("merge matte (scaled)", 20 + lennaImage.getWidth() + 20, 25);
-			gol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
+			//gol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
 			
-			/*
+			
 			AffineTransform tx = g2.getTransform();
 			g2.scale(2, 2);
-			g2.drawImage(mergeImage,150, 16,this);
+			g2.drawImage(similarImage,150, 16,this);
 			g2.setTransform(tx);
-			*/
+			
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));

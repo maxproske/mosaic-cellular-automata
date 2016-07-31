@@ -3,6 +3,7 @@ package utilities;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import utilities.Util;
 
@@ -88,7 +89,7 @@ public class Filter {
 	}
 	
 	// Apply an merge matte to a single image
-	public static BufferedImage mergeMatte(BufferedImage src)
+	public static BufferedImage populationMatte(BufferedImage src)
 	{
 		// Prepare image
 		int imgWidth = src.getWidth();
@@ -144,6 +145,80 @@ public class Filter {
 				} else {
 					rgb = 0xff000000; 
 				}
+				// Set pixel value
+				copy.setRGB(x, y, new Color(rgb).getRGB());
+			}
+		}
+		return copy; 
+	}
+	
+	// Apply an merge matte to a single image
+	public static BufferedImage similarMatte(BufferedImage src)
+	{
+		// Prepare image
+		int imgWidth = src.getWidth();
+		int imgHeight = src.getHeight();
+		BufferedImage copy = new BufferedImage(imgWidth, imgHeight, src.getType());
+
+		for (int x = 0; x < imgWidth; x++) 
+		{
+			for (int y = 0; y < imgHeight; y++) 
+			{
+				// Initialize pixel variables
+				int rgb = src.getRGB(x,y);
+				int[][] rgbArr = new int[4][4];
+				
+				// Create array of neighbors (1 to the right, 1 to the bottom, 1 to the bottom right)
+				for (int i=0; i<4; i++)
+				{
+					// Get x-position
+					int xPos = x+i;
+					
+					for (int j=0; j<4; j++)
+					{
+						// Get y-position
+						int yPos = y+j;
+						
+						// If the value is in bounds
+						if (xPos < imgWidth && yPos < imgHeight) 
+						{
+							rgbArr[i][j] = src.getRGB(xPos,yPos);
+						}
+					}
+				}
+				// Assign rgb values based on neighbor count
+				
+				// find 2x2 patterns
+				if (rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff) {
+					rgb = 0xff00ffff;
+				} else if (rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6) {
+					rgb = 0xff0000ff;
+				} 
+				
+				// find 3x2 patterns
+				else if (rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
+					rgb = 0xff00ff00;
+				} else if (rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
+					rgb = 0xffff0000;
+				} 
+				
+				// find 4x2 patterns
+				else if (rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+					rgb = 0xffffff00;
+				} else if (rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+					rgb = 0xffff00ff;
+				}
+				
+				// unassigned patterns
+				else if (rgb > 0xff000000){
+					rgb = 0xff242424;
+				} 
+				
+				// default to black
+				else {
+					rgb = 0xff000000;
+				}
+				
 				// Set pixel value
 				copy.setRGB(x, y, new Color(rgb).getRGB());
 			}
