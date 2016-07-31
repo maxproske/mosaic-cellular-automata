@@ -42,9 +42,10 @@ public class Filter {
 	public static BufferedImage matteAlpha(BufferedImage src)
 	{	
 		// Prepare image
-		BufferedImage copy = new BufferedImage(src.getWidth()*6, src.getHeight()*6, BufferedImage.TYPE_INT_ARGB);
+		int atomicUnit = 6;
 		int w = src.getWidth();
 		int h = src.getHeight();
+		BufferedImage copy = new BufferedImage(w*atomicUnit, h*atomicUnit, BufferedImage.TYPE_INT_ARGB);
 		
 		for(int x=0; x<w; x++)
 		{
@@ -80,77 +81,61 @@ public class Filter {
 	// Apply an merge matte to a single image
 	public static BufferedImage mergeMatte(BufferedImage src)
 	{
-		// Create a copy of the image
-		BufferedImage copy = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
-		
-		for (int y = 1; y < src.getHeight()-1; y++) 
+		// Prepare image
+		int imgWidth = src.getWidth();
+		int imgHeight = src.getHeight();
+		BufferedImage copy = new BufferedImage(imgWidth, imgHeight, src.getType());
+
+		for (int x = 0; x < imgWidth; x++) 
 		{
-			for (int x = 1; x < src.getWidth()-1; x++) 
+			for (int y = 0; y < imgHeight; y++) 
 			{
-				
+				// Initialize pixel variables
 				int rgb = src.getRGB(x,y);
-				int neighbors = -1;
+				int neighbors = 0;
 				
 				// If the pixel is alive
-				if(rgb > 0xff000000) {
-				
-					// Set to white
-					rgb = 0xffffffff;				
-					
-					// Increment counter if neighbors are alive
-					for (int i=0; i<3; i++){
-						for (int j=0; j<3; j++){
-							neighbors += (src.getRGB(x+i-1, y+j-1) > 0xff000000) ? 1 : 0;
+				if(rgb > 0xff000000) 
+				{			
+					// Increment neighbor count if neighbors in 3x3 area are alive
+					for (int i=0; i<3; i++)
+					{
+						// Get x-position
+						int xPos = x+i-1;
+						
+						for (int j=0; j<3; j++)
+						{
+							// Get y-position
+							int yPos = y+j-1;
+							
+							// If the value is in bounds
+							if (xPos >= 0 && yPos >= 0 && xPos < imgWidth && yPos < imgHeight) 
+							{
+								// And if the value is not itself
+								if (xPos != x && yPos != y) 
+								{
+									// And if the value is not black
+									if (src.getRGB(xPos, yPos) != 0xff000000) {
+										neighbors++;
+									}
+								}
+							}
 						}
 					}
-					
-
-					switch(neighbors){
-						case -1:
-							rgb = 0xff1c1c1c; 
-							break;
-						case 0: 
-							rgb = 0xff1c1c1c; 
-							break;
-						case 1: 
-							rgb = 0xff555555; 
-							break;
-						case 2: 
-							rgb = 0xff8d8d8d; 
-							break;
-						case 3: 
-							rgb = 0xffc6c6c6; 
-							break;
-						case 4:
-							rgb = 0xffffffff; 
-							break;
-						// below cases won't happen
-						default: 
-							rgb = 0xff000000; 
-							break;
+					// Assign rgb values based on neighbor count
+					switch(neighbors)
+					{
+						case 0: rgb = 0xff1c1c1c; break;
+						case 1: rgb = 0xff555555; break;
+						case 2: rgb = 0xff8d8d8d; break;
+						case 3: rgb = 0xffc6c6c6; break;
+						case 4: rgb = 0xffffffff; break;
+						default:rgb = 0xffff0000; break; // can't have more than 4 neighbors
 					}
-				} 
-				// Else set to black
-				else {
-					rgb = 0xff000000;
+				} else {
+					rgb = 0xff000000; 
 				}
-
-				
-
-				
-				/*
-				if (rgb2 > 0xff000000 || rgb3 > 0xff000000 || rgb4 > 0xff000000) {
-					rgb = 0xffff0000;
-				}
-				if (rgb2 > 0xff000000 && rgb3 > 0xff000000 || rgb3 > 0xff000000 && rgb4 > 0xff000000 || rgb2 > 0xff000000 && rgb4 > 0xff000000) {
-					rgb = 0xff00ff00;
-				}
-				if (rgb2 > 0xff000000 && rgb3 > 0xff000000 && rgb4 > 0xff000000) {
-					rgb = 0xff0000ff;
-				}
-				*/
-
-				
+				// Set pixel value
 				copy.setRGB(x, y, new Color(rgb).getRGB());
 			}
 		}
