@@ -18,8 +18,9 @@ import utilities.Pattern;
 public class MosaicPanel extends JPanel {
 	
 		// Define instance variables
-		private static final int PANEL_W = 860;
-		private static final int PANEL_H = 780;
+		public static final int PANEL_W = 860;
+		public static final int PANEL_H = 780;
+		public static final int ATOMIC_UNIT = 6;
 		private int imgWidth;
 		private int imgHeight;
 		private BufferedImage lennaImage;
@@ -65,7 +66,7 @@ public class MosaicPanel extends JPanel {
 			mergeImage = Filter.mergeMatte(ditheredImage);
 			
 			// Apply alpha matte
-			preparedImage = Filter.matteAlpha(mergeImage);
+			preparedImage = Filter.matteAlpha(ditheredImage,mergeImage);
 		}
 		
 		// Callback method
@@ -92,11 +93,14 @@ public class MosaicPanel extends JPanel {
 		    
 		    // Scaled down game of life
 			g2.drawString("merge matte (scaled)", 20 + lennaImage.getWidth() + 20, 25);
-			//ol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
+			gol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
+			
+			/*
 			AffineTransform tx = g2.getTransform();
 			g2.scale(2, 2);
 			g2.drawImage(mergeImage,150, 16,this);
 			g2.setTransform(tx);
+			*/
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));

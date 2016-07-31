@@ -39,12 +39,12 @@ public class Filter {
 	}
 	
 	// Apply an alpha matte to a single image
-	public static BufferedImage matteAlpha(BufferedImage src)
+	public static BufferedImage matteAlpha(BufferedImage src, BufferedImage matte)
 	{	
 		// Prepare image
 		int atomicUnit = 6;
-		int w = src.getWidth();
-		int h = src.getHeight();
+		int w = matte.getWidth();
+		int h = matte.getHeight();
 		BufferedImage copy = new BufferedImage(w*atomicUnit, h*atomicUnit, BufferedImage.TYPE_INT_ARGB);
 		
 		for(int x=0; x<w; x++)
@@ -52,25 +52,34 @@ public class Filter {
 			for(int y=0; y<h; y++)
 			{
 				// Prepare pattern
-				int[][] pattern = Pattern.getRandomOscillator(1,1);
+				int[][] pattern = new int[atomicUnit][atomicUnit];
+				int rgb = matte.getRGB(x, y);
+				switch(rgb) {
+					case 0xff1c1c1c: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.toad,0); break;
+					case 0xff555555: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.toad,6); break;
+					case 0xff8d8d8d: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.beacon,0); break;
+					case 0xffc6c6c6: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.beacon,6); break;
+					case 0xffffffff: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.clock,0); break;
+					default: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.toad,0); break;
+				}
 				int cols = pattern[0].length;
 				int rows = pattern.length;
 
-				for(int i=0; i<cols; i++)
+				for(int i=0; i<cols-1; i++)
 				{
 					// Get x-position
 					int xPos = x*cols+i;
 				
-					for(int j=0; j<rows; j++) 
+					for(int j=0; j<rows-1; j++) 
 					{
 						// Get y-position
 						int yPos = y*rows+j;
 						
 						// Calculate alpha value
-						int rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
+						int new_rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
 						
 						// Set pixel value
-						copy.setRGB(xPos, yPos, rgb);
+						copy.setRGB(xPos, yPos, new_rgb);
 					}
 				}
 			}
