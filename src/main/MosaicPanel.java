@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -24,6 +25,7 @@ public class MosaicPanel extends JPanel {
 		private BufferedImage lennaImage;
 		private BufferedImage ditheredImage;
 		private BufferedImage preparedImage;
+		private BufferedImage mergeImage;
 		private GameOfLife gol;
 		
 		// Constructor
@@ -59,8 +61,11 @@ public class MosaicPanel extends JPanel {
 			// Apply dither filter
 			ditheredImage = Filter.dither(lennaImage);
 	
+			// Merge dither
+			mergeImage = Filter.mergeMatte(ditheredImage);
+			
 			// Apply alpha matte
-			preparedImage = Filter.matteAlpha(ditheredImage);
+			preparedImage = Filter.matteAlpha(mergeImage);
 		}
 		
 		// Callback method
@@ -78,21 +83,25 @@ public class MosaicPanel extends JPanel {
 			
 			// Original image preview
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("lenna image", 20, 25);
-			g2.drawImage(lennaImage,20,30,this);
+			g2.drawString("merge matte", 20, 25);
+			g2.drawImage(mergeImage,20,30,this);
 			
 			// Filtered image preview
 			g2.drawString("filtered image", 20, 30 + imgHeight + 25);
 		    g2.drawImage(ditheredImage,20, 30 + imgHeight + 30,this);
 		    
 		    // Scaled down game of life
-			g2.drawString("game of life (scaled)", 20 + lennaImage.getWidth() + 20, 25);
-			gol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
+			g2.drawString("merge matte (scaled)", 20 + lennaImage.getWidth() + 20, 25);
+			//ol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
+			AffineTransform tx = g2.getTransform();
+			g2.scale(2, 2);
+			g2.drawImage(mergeImage,150, 16,this);
+			g2.setTransform(tx);
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("close up of game of life", 20, 30*2 + lennaImage.getHeight()*2 + 25);
-			gol.drawCells(g2, 20, 30*2 + imgHeight*2 + 35, 2,10,0,69,15);
+			g2.drawString("close up of merge matte", 20, 30*2 + lennaImage.getHeight()*2 + 25);
+			gol.drawCells(g2, 20, 30*2 + imgHeight*2 + 35, 2,0,0,70,20);
 			
 			// Tick
 			gol.tick();
