@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -87,6 +88,9 @@ public class MosaicPanel extends JPanel {
 			// Upgrade the graphics tool
 			Graphics2D g2 = (Graphics2D)g;
 
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+			
 			// Draw background
 			g2.setColor(new Color(0,0,0));
 			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H));
@@ -106,13 +110,13 @@ public class MosaicPanel extends JPanel {
 			
 			// Scaled down game of life
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("scaled down (0.355x) game of life", 20 + lennaImage.getWidth() + 20,30-5);
-			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.355,0,0,lennaImage.getWidth(),lennaImage.getHeight());
+			g2.drawString("scaled down game of life", 20 + lennaImage.getWidth() + 20,30-5);
+			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.16,0,0,lennaImage.getWidth(),lennaImage.getHeight());
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("scaled up (2x) game of life", 20 + lennaImage.getWidth() + 20, 30*2 + lennaImage.getHeight()*2 + 35-5);
-			gol.drawCells(g2, 20 + lennaImage.getWidth() + 20, 30*2 + lennaImage.getHeight()*2 + 35, 2,lennaImage.getWidth()/2,lennaImage.getHeight()/2,70,20);
+			g2.drawString("game of life simulation", 20 + lennaImage.getWidth() + 20, lennaImage.getHeight()-5+40);
+			gol.drawCells(g2, 20 + lennaImage.getWidth() + 20, lennaImage.getHeight()+40, 1,lennaImage.getWidth()/3,lennaImage.getHeight()/3,115,89);
 			
 			// Tick
 			gol.tick();

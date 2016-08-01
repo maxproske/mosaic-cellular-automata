@@ -89,12 +89,12 @@ public class Filter {
 				{
 					int cols = pattern[0].length;
 
-					for(int i=0; i<cols; i++)
+					for(int i=0; i<cols-1; i++)
 					{
 						// Get x-position
 						int xPos = x*atomicUnit+i;
 					
-						for(int j=0; j<rows; j++) 
+						for(int j=0; j<rows-1; j++) 
 						{
 							// Get y-position
 							int yPos = y*atomicUnit+j;
