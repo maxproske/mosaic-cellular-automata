@@ -45,6 +45,20 @@ public class Pattern {
 	    return newArray;
 	}
 	
+	public static int[][] rotateMatrixLeft(int[][] matrix)
+	{
+	    /* W and H are already swapped */
+	    int w = matrix.length;
+	    int h = matrix[0].length;   
+	    int[][] ret = new int[h][w];
+	    for (int i = 0; i < h; ++i) {
+	        for (int j = 0; j < w; ++j) {
+	            ret[i][j] = matrix[j][h - i - 1];
+	        }
+	    }
+	    return ret;
+	}
+	
 	// Get random oscillator
 	public static int[][] getRandomOscillator(int w, int h)
 	{
@@ -81,25 +95,25 @@ public class Pattern {
 					{0,0,1,1,0,0},
 					{0,0,0,1,0,0},
 					{0,0,0,0,0,0}};
-				return r > 0 ? rotate(arr,r) : arr;
+				return r > 0 ? rotateMatrixLeft(arr) : arr;
 			case beacon:
-				int[][] arr1 = new int[][]{
+				int[][] arr2 = new int[][]{
 					{0,0,0,0,0,0},
 					{0,1,1,0,0,0},
 					{0,1,1,0,0,0},
 					{0,0,0,1,1,0},
 					{0,0,0,1,1,0},
 					{0,0,0,0,0,0}};
-				return r > 0 ? rotate(arr1,r) : arr1;
+				return r > 0 ? rotateMatrixLeft(arr2) : arr2;
 			case clock:
-				int[][] arr2 = new int[][]{
+				int[][] arr3 = new int[][]{
 					{0,0,0,0,0,0},
 					{0,0,1,0,0,0},
 					{0,0,0,1,1,0},
 					{0,1,1,0,0,0},
 					{0,0,0,1,0,0},
 					{0,0,0,0,0,0}};
-				return r > 0 ? rotate(arr2,r) : arr2;
+				return r > 0 ? rotateMatrixLeft(arr3) : arr3;
 			default:
 				return null;
 		}
@@ -109,7 +123,7 @@ public class Pattern {
 	public static int[][] getOscillator(Oscillator_2x1 osc, int r){
 		switch(osc){
 			case killer_toads:
-				return new int[][]{
+				int[][] arr = new int[][]{
 					{0,0,0,0,0,0},
 					{0,0,0,0,0,0},
 					{0,0,1,1,1,0},
@@ -122,8 +136,9 @@ public class Pattern {
 					{0,0,0,0,0,0},
 					{0,0,0,0,0,0},
 					{0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr) : arr;
 			case cis_beacon_and_cap:
-				return new int[][]{
+				int[][] arr2 = new int[][]{
 					{0,0,0,0,0,0},
 					{0,0,0,0,0,0},
 					{0,0,0,1,1,0},
@@ -136,6 +151,7 @@ public class Pattern {
 					{0,0,1,1,0,0},
 					{0,0,0,0,0,0},
 					{0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
 			default:
 				return null;
 		}
@@ -145,7 +161,7 @@ public class Pattern {
 	public static int[][] getOscillator(Oscillator_2x2 osc, int r){
 		switch(osc){
 			case figure_eight:
-				return new int[][]{
+				int[][] arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -158,8 +174,9 @@ public class Pattern {
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr) : arr;
 			case a_for_all:
-				return new int[][]{
+				int[][] arr2 = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,1,1,0,0,0,0,0},
 					{0,0,0,0,1,0,0,1,0,0,0,0},
@@ -172,6 +189,7 @@ public class Pattern {
 					{0,0,0,0,1,0,0,1,0,0,0,0},
 					{0,0,0,0,0,1,1,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
 			default:
 				return null;
 		}
@@ -181,7 +199,7 @@ public class Pattern {
 	public static int[][] getOscillator(Oscillator_2x3 osc, int r){
 		switch(osc){
 			case pentadecathlon:
-				return new int[][]{
+				int[][] arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -196,12 +214,13 @@ public class Pattern {
 					{0,0,0,0,1,0,1,0,0,0,0,0},
 					{0,0,0,0,0,1,0,0,0,0,0,0},
 					{0,0,0,0,0,1,0,0,0,0,0,0},
-					{0,0,0,0,0,1,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr) : arr;
 			case coes_p8:
-				return new int[][]{
+				int[][] arr2 = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -215,11 +234,12 @@ public class Pattern {
 					{0,0,0,0,0,0,1,0,0,0,0,0},
 					{0,0,0,1,1,1,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,1,1,0,0,0,0,0,0,0},
-					{0,0,0,1,1,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,0,0,0,0,0,0},
+					{0,0,0,1,1,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
 			default:
 				return null;
 		}
@@ -229,12 +249,7 @@ public class Pattern {
 	public static int[][] getOscillator(Oscillator_2x4 osc, int r){
 		switch(osc){
 			case caterer_on_figure_eight:
-				return new int[][]{
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
+				int[][] arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,1,1,0,0,0,0,0,0,0},
 					{0,0,0,1,1,0,1,0,0,0,0,0},
@@ -258,13 +273,10 @@ public class Pattern {
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},};
+					{0,0,0,0,0,0,0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr) : arr;
 			case queen_bee_shuttle:
-				return new int[][]{
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
+				int[][] arr2 = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
@@ -288,10 +300,8 @@ public class Pattern {
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
+					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
 			default:
 				return null;
 		}

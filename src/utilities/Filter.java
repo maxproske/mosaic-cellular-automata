@@ -47,43 +47,99 @@ public class Filter {
 		int w = matte.getWidth();
 		int h = matte.getHeight();
 		BufferedImage copy = new BufferedImage(w*atomicUnit, h*atomicUnit, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage copy2 = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
 		
 		for(int x=0; x<w; x++)
 		{
 			for(int y=0; y<h; y++)
 			{
 				// Prepare pattern
-				int[][] pattern = new int[atomicUnit][atomicUnit];
+				int[][] pattern = new int[0][0];
 				int rgb = matte.getRGB(x, y);
-				switch(rgb) {
-					case 0xff1c1c1c: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.toad,0); break;
-					case 0xff555555: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.toad,6); break;
-					case 0xff8d8d8d: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.beacon,0); break;
-					case 0xffc6c6c6: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.beacon,6); break;
-					case 0xffffffff: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.clock,0); break;
-					default: pattern = Pattern.getOscillator(Pattern.Oscillator_1x1.toad,0); break;
-				}
-				int cols = pattern[0].length;
-				int rows = pattern.length;
-
-				for(int i=0; i<cols-1; i++)
-				{
-					// Get x-position
-					int xPos = x*cols+i;
+				int max_i = 0;
+				int max_j = 0;
 				
-					for(int j=0; j<rows-1; j++) 
+				switch(rgb) {
+					case 0xff00ffff: // cyan
+						max_i = 2;
+						max_j = 2;
+						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
+						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.figure_eight,0); 
+						break; 
+					case 0xff0000ff: // blue
+						max_i = 2;
+						max_j = 2;
+						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
+						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.a_for_all,0); 
+						break; 
+					case 0xff00ff00: // green
+						max_i = 3;
+						max_j = 2;
+						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
+						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.pentadecathlon,0); 
+						break; 
+					case 0xffff0000: // red
+						max_i = 3;
+						max_j = 2;
+						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
+						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.coes_p8,0); 
+						break; 
+					case 0xffffff00: // yellow
+						max_i = 4;
+						max_j = 2;
+						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
+						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.queen_bee_shuttle,1);
+						break; 
+					case 0xffff00ff: // purple
+						max_i = 4;
+						max_j = 2;
+						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
+						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.caterer_on_figure_eight,1); 
+						break; 
+					case 0xffffffff: // white
+						max_i = 1;
+						max_j = 1;
+						pattern = new int[atomicUnit][atomicUnit];
+						pattern = Pattern.getRandomOscillator(1,1); 
+						break; 
+					default:
+						break;
+				}
+				
+				int rows = pattern.length;
+				//int flag =0;
+				
+				if (rows > 0) 
+				{
+					int cols = pattern[0].length;
+
+					for(int i=0; i<cols; i++)
 					{
-						// Get y-position
-						int yPos = y*rows+j;
-						
-						// Calculate alpha value
-						int new_rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
-						
-						// Set pixel value
-						copy.setRGB(xPos, yPos, new_rgb);
+						// Get x-position
+						int xPos = x*6+i;
+					
+						for(int j=0; j<rows; j++) 
+						{
+							// Get y-position
+							int yPos = y*6+j;
+	
+							// If it is in bounds
+							if (xPos < w && yPos < h) 
+							{
+								// Calculate alpha value
+								//int new_rgb = (pattern[j][i] == 1) ? matte.getRGB(x,y) : matte.getRGB(x,y) & 0xffffff;
+								int new_rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
+								
+								//if (rgb == 0xffffff00 && pattern[j][i] == 1 && flag==0) { System.out.println(xPos+","+yPos); flag=1;}
+									
+								// set pixel value
+								copy.setRGB(xPos, yPos, new_rgb);
+							}
+						}
 					}
 				}
 			}
+			
 		}	
 		return copy;
 	}
@@ -153,12 +209,13 @@ public class Filter {
 	}
 	
 	// Apply an merge matte to a single image
-	public static BufferedImage similarMatte(BufferedImage src)
+	public static BufferedImage similarMatte(BufferedImage src, boolean debug)
 	{
 		// Prepare image
 		int imgWidth = src.getWidth();
 		int imgHeight = src.getHeight();
 		BufferedImage copy = new BufferedImage(imgWidth, imgHeight, src.getType());
+		BufferedImage result = new BufferedImage(imgWidth, imgHeight, src.getType());
 
 		for (int x = 0; x < imgWidth; x++) 
 		{
@@ -267,18 +324,20 @@ public class Filter {
 				}
 				// If it's not drawing over top of something, paint
 				if (flag != 1) {
+					result.setRGB(x, y, new Color(rgb).getRGB()); // push color to final result
 					for (int i = 0; i < max_i; i++){
 						for (int j = 0; j < max_j; j++){
 							copy.setRGB(x+j, y+i, new Color(rgb).getRGB());
 						}
 					}
-				} 
+				}
 				// if the space is still empty, paint the dither pattern that would have been here
 				if (copy.getRGB(x, y) == 0xff000000 && src.getRGB(x, y) != 0xff000000) {
-					copy.setRGB(x, y, new Color(0xff555555).getRGB());
+					copy.setRGB(x, y, new Color(0xffffffff).getRGB());
+					result.setRGB(x, y, new Color(0xffffffff).getRGB()); // push white pixels to final result
 				}
 			}
 		}
-		return copy; 
+		return debug ? copy : result; 
 	}
 }

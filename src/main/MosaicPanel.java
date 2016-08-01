@@ -18,8 +18,8 @@ import utilities.Pattern;
 public class MosaicPanel extends JPanel {
 	
 		// Define instance variables
-		public static final int PANEL_W = 860;
-		public static final int PANEL_H = 780;
+		public static final int PANEL_W = 1000;
+		public static final int PANEL_H = 840;
 		public static final int ATOMIC_UNIT = 6;
 		private int imgWidth;
 		private int imgHeight;
@@ -28,6 +28,8 @@ public class MosaicPanel extends JPanel {
 		private BufferedImage preparedImage;
 		private BufferedImage populationImage;
 		private BufferedImage similarImage;
+		private BufferedImage oscillatorImage;
+		private BufferedImage nearestImage;
 		private GameOfLife gol;
 		
 		// Constructor
@@ -66,11 +68,17 @@ public class MosaicPanel extends JPanel {
 			// Population matte
 			populationImage = Filter.populationMatte(ditheredImage);
 			
+			// nearest neighbor matte
+			nearestImage = Filter.similarMatte(populationImage,true);
+			
 			// Similar matte
-			similarImage = Filter.similarMatte(populationImage);
+			similarImage = Filter.similarMatte(populationImage,false);
+			
+			// Oscillator matte
+			//oscillatorImage = Filter.oscillatorImage(similarImage);
 			
 			// Apply alpha matte
-			preparedImage = Filter.matteAlpha(ditheredImage,populationImage);
+			preparedImage = Filter.matteAlpha(lennaImage,similarImage);
 		}
 		
 		// Callback method
@@ -86,30 +94,28 @@ public class MosaicPanel extends JPanel {
 			g2.setColor(new Color(0,0,0));
 			g2.fill(new Rectangle2D.Double(0, 0, PANEL_W, PANEL_H));
 			
-			// Original image preview
+			// Dithered filter preview
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("1. population matte", 20, 25);
-			g2.drawImage(populationImage,20,30,this);
+			g2.drawString("step 1. dither filter", 10, 15);
+			g2.drawImage(ditheredImage,10,20,this);
 			
-			// Filtered image preview
-			g2.drawString("2. similar matte", 20, 30 + imgHeight + 25);
-		    g2.drawImage(similarImage,20, 30 + imgHeight + 30,this);
+			// Population matte preview
+			g2.drawString("step 2. population matte", 10, 15+imgHeight+20);
+		    g2.drawImage(populationImage,10,20+imgHeight+20,this);
 		    
-		    // Scaled down game of life
-			g2.drawString("merge matte (scaled)", 20 + lennaImage.getWidth() + 20, 25);
-			//gol.drawCells(g2,20 + imgWidth + 20,30,0.355,0,0,imgWidth,imgHeight);
+		    // Similar neighbor matte preview
+			g2.drawString("step 3. similar neighbor matte", 10, 15+imgHeight*2+20*2);
+			g2.drawImage(nearestImage,10,20+imgHeight*2+20*2,this);
 			
-			
-			AffineTransform tx = g2.getTransform();
-			g2.scale(2, 2);
-			g2.drawImage(similarImage,150, 16,this);
-			g2.setTransform(tx);
-			
+			// Scaled down game of life
+			g2.setColor(new Color(255,255,255));
+			g2.drawString("scaled down game of life (does not create values beyond 256x256?)", 20 + lennaImage.getWidth() + 20,30-5);
+			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.355,0,0,lennaImage.getWidth(),lennaImage.getHeight());
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("close up of merge matte", 20, 30*2 + lennaImage.getHeight()*2 + 25);
-			gol.drawCells(g2, 20, 30*2 + imgHeight*2 + 35, 2,0,0,70,20);
+			g2.drawString("scaled up game of life (does not create values beyond 256x256?)", 20+256, 30*2 + lennaImage.getHeight()*2 + 35-5);
+			gol.drawCells(g2, 20+256, 30*2 + lennaImage.getHeight()*2 + 35, 2,0,0,69,15);
 			
 			// Tick
 			gol.tick();

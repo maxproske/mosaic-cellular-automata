@@ -21,7 +21,7 @@ public class MosaicApp extends JFrame
 		this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
 		
 		// Set location of the window
-		this.setLocation(300,150);
+		this.setLocation(200,50);
 		
 		// Instantiate new panel object
 		this.add(new MosaicPanel());
