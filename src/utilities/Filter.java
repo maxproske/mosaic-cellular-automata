@@ -44,10 +44,9 @@ public class Filter {
 	{	
 		// Prepare image
 		int atomicUnit = 6;
-		int w = matte.getWidth();
-		int h = matte.getHeight();
+		int w = src.getWidth();
+		int h = src.getHeight();
 		BufferedImage copy = new BufferedImage(w*atomicUnit, h*atomicUnit, BufferedImage.TYPE_INT_ARGB);
-		BufferedImage copy2 = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
 		
 		for(int x=0; x<w; x++)
 		{
@@ -56,50 +55,27 @@ public class Filter {
 				// Prepare pattern
 				int[][] pattern = new int[0][0];
 				int rgb = matte.getRGB(x, y);
-				int max_i = 0;
-				int max_j = 0;
 				
 				switch(rgb) {
 					case 0xff00ffff: // cyan
-						max_i = 2;
-						max_j = 2;
-						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.figure_eight,0); 
 						break; 
 					case 0xff0000ff: // blue
-						max_i = 2;
-						max_j = 2;
-						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.a_for_all,0); 
 						break; 
 					case 0xff00ff00: // green
-						max_i = 3;
-						max_j = 2;
-						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.pentadecathlon,0); 
 						break; 
 					case 0xffff0000: // red
-						max_i = 3;
-						max_j = 2;
-						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.coes_p8,0); 
 						break; 
 					case 0xffffff00: // yellow
-						max_i = 4;
-						max_j = 2;
-						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.queen_bee_shuttle,1);
 						break; 
 					case 0xffff00ff: // purple
-						max_i = 4;
-						max_j = 2;
-						pattern = new int[atomicUnit*max_i][atomicUnit*max_j];
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.caterer_on_figure_eight,1); 
 						break; 
 					case 0xffffffff: // white
-						max_i = 1;
-						max_j = 1;
-						pattern = new int[atomicUnit][atomicUnit];
 						pattern = Pattern.getRandomOscillator(1,1); 
 						break; 
 					default:
@@ -116,21 +92,19 @@ public class Filter {
 					for(int i=0; i<cols; i++)
 					{
 						// Get x-position
-						int xPos = x*6+i;
+						int xPos = x*atomicUnit+i;
 					
 						for(int j=0; j<rows; j++) 
 						{
 							// Get y-position
-							int yPos = y*6+j;
+							int yPos = y*atomicUnit+j;
 	
 							// If it is in bounds
-							if (xPos < w && yPos < h) 
+							if (xPos < w*6 && yPos < h*6) 
 							{
 								// Calculate alpha value
 								//int new_rgb = (pattern[j][i] == 1) ? matte.getRGB(x,y) : matte.getRGB(x,y) & 0xffffff;
 								int new_rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
-								
-								//if (rgb == 0xffffff00 && pattern[j][i] == 1 && flag==0) { System.out.println(xPos+","+yPos); flag=1;}
 									
 								// set pixel value
 								copy.setRGB(xPos, yPos, new_rgb);

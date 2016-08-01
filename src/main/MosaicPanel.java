@@ -74,9 +74,6 @@ public class MosaicPanel extends JPanel {
 			// Similar matte
 			similarImage = Filter.similarMatte(populationImage,false);
 			
-			// Oscillator matte
-			//oscillatorImage = Filter.oscillatorImage(similarImage);
-			
 			// Apply alpha matte
 			preparedImage = Filter.matteAlpha(lennaImage,similarImage);
 		}
@@ -109,13 +106,13 @@ public class MosaicPanel extends JPanel {
 			
 			// Scaled down game of life
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("scaled down game of life (does not create values beyond 256x256?)", 20 + lennaImage.getWidth() + 20,30-5);
+			g2.drawString("scaled down (0.355x) game of life", 20 + lennaImage.getWidth() + 20,30-5);
 			gol.drawCells(g2,20 + lennaImage.getWidth() + 20,30,0.355,0,0,lennaImage.getWidth(),lennaImage.getHeight());
 			
 			// Scaled up game of life
 			g2.setColor(new Color(255,255,255));
-			g2.drawString("scaled up game of life (does not create values beyond 256x256?)", 20+256, 30*2 + lennaImage.getHeight()*2 + 35-5);
-			gol.drawCells(g2, 20+256, 30*2 + lennaImage.getHeight()*2 + 35, 2,0,0,69,15);
+			g2.drawString("scaled up (2x) game of life", 20 + lennaImage.getWidth() + 20, 30*2 + lennaImage.getHeight()*2 + 35-5);
+			gol.drawCells(g2, 20 + lennaImage.getWidth() + 20, 30*2 + lennaImage.getHeight()*2 + 35, 2,lennaImage.getWidth()/2,lennaImage.getHeight()/2,70,20);
 			
 			// Tick
 			gol.tick();
