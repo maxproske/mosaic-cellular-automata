@@ -186,32 +186,60 @@ public class Filter {
 						}
 					}
 				}
+				
 				// Assign rgb values based on neighbor count
+				int max_i = 0;
+				int max_j = 0;
 				
 				// find 2x2 patterns
-				if (rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff) {
-					rgb = 0xff00ffff;
-				} else if (rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6) {
-					rgb = 0xff0000ff;
+				if (	rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && 
+						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff) {
+					rgb = 0xff00ffff; // cyan
+					max_i = 2;
+					max_j = 2;
+				} else if (
+						rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && 
+						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6) {
+					rgb = 0xff0000ff; // blue
+					max_i = 2;
+					max_j = 2;
 				} 
-				
 				// find 3x2 patterns
-				else if (rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
-					rgb = 0xff00ff00;
-				} else if (rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
-					rgb = 0xffff0000;
+				else if (
+						rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && 
+						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
+					rgb = 0xff00ff00; // green
+					max_i = 3;
+					max_j = 2;
+				} else if (
+						rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && 
+						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
+					rgb = 0xffff0000; // red
+					max_i = 3;
+					max_j = 2;
 				} 
-				
 				// find 4x2 patterns
-				else if (rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
-					rgb = 0xffffff00;
-				} else if (rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
-					rgb = 0xffff00ff;
+				else if (
+						rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && 
+						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
+						rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && 
+						rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+					rgb = 0xffffff00; // yellow
+					max_i = 2;
+					max_j = 4;
+				} else if (
+						rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && 
+						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
+						rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && 
+						rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+					rgb = 0xffff00ff; // purple
+					max_i = 2;
+					max_j = 4;
 				}
 				
 				// unassigned patterns
 				else if (rgb > 0xff000000){
-					rgb = 0xff242424;
+					rgb = 0xff000000;
 				} 
 				
 				// default to black
@@ -219,8 +247,36 @@ public class Filter {
 					rgb = 0xff000000;
 				}
 				
-				// Set pixel value
-				copy.setRGB(x, y, new Color(rgb).getRGB());
+				// zero-out all positions past the oscillator bounding box
+				for (int i = max_i; i < 4; i++){
+					for (int j = max_j; j < 4; j++){
+						rgbArr[i][j] = 0;
+					}
+				}
+				
+				// Set flag if it's drawing over top of something
+				int flag = 0;
+				for (int i = 0; i < max_i; i++){
+					for (int j = 0; j < max_j; j++){
+						if (rgb != 0xff000000 && rgbArr[0][0] != 0) {
+							if(copy.getRGB(x+j, y+i) != 0xff000000) {
+								flag = 1;
+							}
+						}
+					}
+				}
+				// If it's not drawing over top of something, paint
+				if (flag != 1) {
+					for (int i = 0; i < max_i; i++){
+						for (int j = 0; j < max_j; j++){
+							copy.setRGB(x+j, y+i, new Color(rgb).getRGB());
+						}
+					}
+				} 
+				// if the space is still empty, paint the dither pattern that would have been here
+				if (copy.getRGB(x, y) == 0xff000000 && src.getRGB(x, y) != 0xff000000) {
+					copy.setRGB(x, y, new Color(0xff555555).getRGB());
+				}
 			}
 		}
 		return copy; 
