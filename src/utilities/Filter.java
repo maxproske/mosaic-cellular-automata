@@ -12,73 +12,71 @@ public class Filter {
 	// Apply an ordered dither to a single image
 	public static BufferedImage dither(BufferedImage src)
 	{
-		// Create a copy of the image
-		int imgWidth = src.getWidth();
-		int imgHeight = src.getHeight();
-		BufferedImage copy = new BufferedImage(imgWidth,imgHeight, src.getType());
-		
-		// Bayer matrix
-		int[] dithers = new int[]{ 1, 33, 9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52, 20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30, 54, 22 };		
+		// Function variables
+		int[] dithers = new int[]{ 1, 33, 9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52, 20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30, 54, 22 }; // Bayer matrix		
 		int threshold = 16; // Controls the white and black points in the image	
 		int tolerance = 2; // Controls the sensitivity of the filter
+		int imgWidth = src.getWidth();
+		int imgHeight = src.getHeight();
+		BufferedImage result = new BufferedImage(imgWidth,imgHeight, src.getType());
 		
-		for (int x = 0; x < imgWidth; x++) 
+		for (int i = 0; i < imgWidth; i++) 
 		{
-			for (int y = 0; y < imgHeight; y++) 
+			for (int j = 0; j < imgHeight; j++) 
 			{
-				int rgb = src.getRGB(x, y);
-				int dither = dithers[(x & 7) + ((y & 7) << 3)]; 
+				int rgb = src.getRGB(i, j);
+				int dither = dithers[(i & 7) + ((j & 7) << 3)]; 
 				
 				// Set all pixel values above the tolerance threshold to 0
-				int value = (
-						(Util.getRed(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
-						(Util.getGreen(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
-						(Util.getBlue(rgb)	+ dither * 256 / threshold) > 0xff * tolerance) ? 0 : rgb;
+				int value = ((Util.getRed(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
+							 (Util.getGreen(rgb)+ dither * 256 / threshold) > 0xff * tolerance || 
+							 (Util.getBlue(rgb)	+ dither * 256 / threshold) > 0xff * tolerance) ? 0 : rgb;
 				
-				copy.setRGB(x, y, new Color(value).getRGB());
+				result.setRGB(i, j, new Color(value).getRGB());
 			}
 		}
-		return copy; 
+		return result; 
 	}
 	
 	// Apply an alpha matte to a single image
 	public static BufferedImage matteAlpha(BufferedImage src, BufferedImage matte)
 	{	
-		// Prepare image
+		// Function variables
 		int atomicUnit = 6;
-		int w = src.getWidth();
-		int h = src.getHeight();
-		BufferedImage copy = new BufferedImage(w*atomicUnit, h*atomicUnit, BufferedImage.TYPE_INT_ARGB);
+		int imgWidth = src.getWidth();
+		int imgHeight = src.getHeight();
+		BufferedImage result = new BufferedImage(imgWidth*atomicUnit, imgHeight*atomicUnit, BufferedImage.TYPE_INT_ARGB);
 		
-		for(int x=0; x<w; x++)
+		for (int x = 0; x < imgWidth; x++)
 		{
-			for(int y=0; y<h; y++)
+			for (int y = 0; y < imgHeight; y++)
 			{
-				// Prepare pattern
 				int[][] pattern = new int[0][0];
 				int rgb = matte.getRGB(x, y);
 				
-				switch(rgb) {
-					case 0xff00ffff: // cyan
+				// Choose an oscillator based on the matte pixel value
+				switch(rgb) 
+				{
+					case 0xffffffff: // white (1x1)
+						pattern = Pattern.getRandomOscillator(1,1); 
+						break; 
+					case 0xff00ffff: // cyan (2x2)
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.figure_eight,0); 
 						break; 
-					case 0xff0000ff: // blue
+					case 0xff0000ff: // blue (2x2)
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.a_for_all,0); 
 						break; 
-					case 0xff00ff00: // green
+					case 0xff00ff00: // green (3x2)
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.pentadecathlon,0); 
 						break; 
-					case 0xffff0000: // red
+					case 0xffff0000: // red (3x2)
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.coes_p8,0); 
 						break; 
-					case 0xffffff00: // yellow
+					case 0xffffff00: // yellow (4x2)
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.queen_bee_shuttle,1);
 						break; 
-					case 0xffff00ff: // purple
+					case 0xffff00ff: // purple (4x2)
 						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.caterer_on_figure_eight,1); 
-						break; 
-					case 0xffffffff: // white
-						pattern = Pattern.getRandomOscillator(1,1); 
 						break; 
 					default:
 						break;
@@ -102,27 +100,29 @@ public class Filter {
 							int yPos = y*atomicUnit+j;
 	
 							// If the cell is in bounds
-							if (xPos < w*atomicUnit && yPos < h*atomicUnit) 
+							if (xPos < imgWidth*atomicUnit && yPos < imgHeight*atomicUnit) 
 							{
 								// Calculate alpha value
-								//int new_rgb = (pattern[j][i] == 1) ? matte.getRGB(x,y) : matte.getRGB(x,y) & 0xffffff;
 								int value = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
+								
+								// Debug mode
+								//int value = (pattern[j][i] == 1) ? matte.getRGB(x,y) : matte.getRGB(x,y) & 0xffffff;
 									
 								// set pixel value
-								copy.setRGB(xPos, yPos, value);
+								result.setRGB(xPos, yPos, value);
 							}
 						}
 					}
 				}
 			}	
 		}	
-		return copy;
+		return result;
 	}
 	
 	// Apply an merge matte to a single image
 	public static BufferedImage populationMatte(BufferedImage src)
 	{
-		// Prepare image
+		// Function variables
 		int imgWidth = src.getWidth();
 		int imgHeight = src.getHeight();
 		BufferedImage copy = new BufferedImage(imgWidth, imgHeight, src.getType());
@@ -167,7 +167,7 @@ public class Filter {
 					neighbors = -1;
 				}
 				
-				// Assign rgb values based on neighbor count (can't have more than 4 neighbors)
+				// Assign pixel value based on neighbor count (can't have more than 4 neighbors)
 				int value = 0;
 				switch(neighbors)
 				{
@@ -189,7 +189,7 @@ public class Filter {
 	// Apply an merge matte to a single image
 	public static BufferedImage similarMatte(BufferedImage src, boolean debug)
 	{
-		// Prepare image
+		// Function variables
 		int imgWidth = src.getWidth();
 		int imgHeight = src.getHeight();
 		BufferedImage copy = new BufferedImage(imgWidth, imgHeight, src.getType());
@@ -266,8 +266,6 @@ public class Filter {
 						rgb = 0xffff00ff; // purple (4x2)
 						max_i = 2;
 						max_j = 4;
-				} else if (rgb > 0xff000000){
-					rgb = 0xff000000; // unassigned patterns
 				} else {
 					rgb = 0xff000000; // default to black
 				}
@@ -290,6 +288,7 @@ public class Filter {
 						}
 					}
 				}
+				
 				// If it's not drawing over top of something, paint
 				if (flag != 1) {
 					result.setRGB(x, y, new Color(rgb).getRGB()); // push color to final result
@@ -299,6 +298,7 @@ public class Filter {
 						}
 					}
 				}
+				
 				// if the space is still empty, paint the dither pattern that would have been here
 				if (copy.getRGB(x, y) == 0xff000000 && src.getRGB(x, y) != 0xff000000) {
 					copy.setRGB(x, y, new Color(0xffffffff).getRGB());
