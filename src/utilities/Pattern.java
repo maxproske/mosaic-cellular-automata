@@ -1,22 +1,19 @@
 package utilities;
 
-public class Pattern {
+import utilities.Util;
 
-	// http://conwaylife.com/wiki/List_of_common_oscillators
+public class Pattern 
+{
 	public enum Oscillator_1x1 {
 		beacon,
 		clock,
 		toad
 	}
-	public enum Oscillator_2x1 {
-		killer_toads,
-		cis_beacon_and_cap
-	}
 	public enum Oscillator_2x2 {
 		figure_eight,
 		a_for_all
 	}
-	public enum Oscillator_2x3 {
+	public enum Oscillator_3x2 {
 		pentadecathlon,
 		coes_p8
 	}
@@ -25,143 +22,105 @@ public class Pattern {
 		queen_bee_shuttle
 	}
 	
-	// http://conwaylife.com/wiki/Eater
-	public enum Eater {
-	}
-
-	// http://conwaylife.com/wiki/Spaceship
-	public enum Spaceship {
-	}
-	
-	// rotate array
-	public static int[][] rotate (int[][] passedIn, int r){
-	    int[][] newArray = new int[r][r];
-	    for (int i = 0; i < r; i++){
-	        for (int j =0; j<r; j++){
-	        	newArray[i][j] = passedIn [r-1-j][i];
-	        }
-	    }   
-
-	    return newArray;
-	}
-	
-	public static int[][] rotateMatrixLeft(int[][] matrix)
+	// Rotate 2D array
+	public static int[][] rotateMatrixLeft(int[][] matrix, int rotations)
 	{
-	    /* W and H are already swapped */
+		// width and height pre-swapped
 	    int w = matrix.length;
 	    int h = matrix[0].length;   
-	    int[][] ret = new int[h][w];
-	    for (int i = 0; i < h; ++i) {
-	        for (int j = 0; j < w; ++j) {
+		int[][] ret = new int[h][w];
+
+	    for (int i = 0; i < h; ++i) 
+	    {
+	        for (int j = 0; j < w; ++j) 
+	        {
 	            ret[i][j] = matrix[j][h - i - 1];
 	        }
 	    }
-	    return ret;
+	    return (rotations > 1) ? rotateMatrixLeft(ret,rotations-1) : ret;
 	}
 	
 	// Get random oscillator
 	public static int[][] getRandomOscillator(int w, int h)
 	{
-		// Get pattern
-		double random = Math.random(); 
-
-		if(w == 1 && h == 1) {
-			Oscillator_1x1 osc = (random < 0.333) ? Oscillator_1x1.toad : (random < 0.666) ? Oscillator_1x1.beacon : Oscillator_1x1.clock;
-			return getOscillator(osc,0);
-		} else if (w == 2 & h == 1) {
-			Oscillator_2x1 osc = (random < 0.5) ? Oscillator_2x1.killer_toads : Oscillator_2x1.cis_beacon_and_cap;
-			return getOscillator(osc,0);
-		} else if (w == 2 && h == 2){
-			Oscillator_2x2 osc = (random < 0.5) ? Oscillator_2x2.figure_eight : Oscillator_2x2.a_for_all;
-			return getOscillator(osc,0);
-		} else if (w == 2 && h == 3){
-			Oscillator_2x3 osc = (random < 0.5) ? Oscillator_2x3.pentadecathlon : Oscillator_2x3.coes_p8;
-			return getOscillator(osc,0);
-		} else if (w == 2 && h == 4){
-			Oscillator_2x4 osc = (random < 0.5) ? Oscillator_2x4.caterer_on_figure_eight : Oscillator_2x4.queen_bee_shuttle;
-			return getOscillator(osc,0);
+		if (w == 1 && h == 1) 
+		{
+			int rotation = Util.randomInt(0, 2); // square shape, random rotate
+			int index = Util.randomInt(0,Oscillator_1x1.values().length);
+			return getOscillator(Oscillator_1x1.values()[index],rotation);
 		}
-		return null;
+		else if (w == 2 && h == 2)
+		{
+			int rotation = Util.randomInt(0, 2); // square shape, random rotate
+			int index = Util.randomInt(0,Oscillator_2x2.values().length);
+			return getOscillator(Oscillator_2x2.values()[index],rotation);
+		} 
+		else if (w == 3 && h == 2)
+		{
+			int rotation = 0; // irregular shape, don't rotate
+			int index = Util.randomInt(0,Oscillator_3x2.values().length);
+			return getOscillator(Oscillator_3x2.values()[index],rotation);
+		} 
+		else if (w == 4 && h == 2)
+		{
+			int rotation = 1; // rotate 2x4 array to 4x2
+			int index = Util.randomInt(0,Oscillator_2x4.values().length);
+			return getOscillator(Oscillator_2x4.values()[index],rotation);
+		}
+		else {
+			return null;
+		}
 	}
 	
 	// Return 1x1 oscillator pattern as a 2D array
-	public static int[][] getOscillator(Oscillator_1x1 osc, int r){
-		switch(osc){
+	public static int[][] getOscillator(Oscillator_1x1 osc, int r)
+	{
+		int[][] arr = null;
+		
+		switch(osc)
+		{
 			case toad:
-				int[][] arr = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0},
 					{0,0,1,0,0,0},
 					{0,0,1,1,0,0},
 					{0,0,1,1,0,0},
 					{0,0,0,1,0,0},
 					{0,0,0,0,0,0}};
-				return r > 0 ? rotateMatrixLeft(arr) : arr;
+					break;
 			case beacon:
-				int[][] arr2 = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0},
 					{0,1,1,0,0,0},
 					{0,1,1,0,0,0},
 					{0,0,0,1,1,0},
 					{0,0,0,1,1,0},
 					{0,0,0,0,0,0}};
-				return r > 0 ? rotateMatrixLeft(arr2) : arr2;
+					break;
 			case clock:
-				int[][] arr3 = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0},
 					{0,0,1,0,0,0},
 					{0,0,0,1,1,0},
 					{0,1,1,0,0,0},
 					{0,0,0,1,0,0},
 					{0,0,0,0,0,0}};
-				return r > 0 ? rotateMatrixLeft(arr3) : arr3;
+					break;
 			default:
-				return null;
+				break;
 		}
-	}
-	
-	// Return 2x1 oscillator pattern as a 2D array
-	public static int[][] getOscillator(Oscillator_2x1 osc, int r){
-		switch(osc){
-			case killer_toads:
-				int[][] arr = new int[][]{
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0},
-					{0,0,1,1,1,0},
-					{0,1,1,1,0,0},
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0},
-					{0,1,1,1,0,0},
-					{0,0,1,1,1,0},
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr) : arr;
-			case cis_beacon_and_cap:
-				int[][] arr2 = new int[][]{
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0},
-					{0,0,0,1,1,0},
-					{0,0,0,0,1,0},
-					{0,1,0,0,0,0},
-					{0,1,1,0,0,0},
-					{0,0,0,0,0,0},
-					{0,1,1,1,1,0},
-					{0,1,0,0,1,0},
-					{0,0,1,1,0,0},
-					{0,0,0,0,0,0},
-					{0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
-			default:
-				return null;
-		}
+		return r > 0 ? rotateMatrixLeft(arr,r) : arr;
 	}
 	
 	// Return 2x2 oscillator pattern as a 2D array
-	public static int[][] getOscillator(Oscillator_2x2 osc, int r){
-		switch(osc){
+	public static int[][] getOscillator(Oscillator_2x2 osc, int r)
+	{
+		int[][] arr = null;
+		
+		switch(osc)
+		{
 			case figure_eight:
-				int[][] arr = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -174,9 +133,9 @@ public class Pattern {
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr) : arr;
+					break;
 			case a_for_all:
-				int[][] arr2 = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,1,1,0,0,0,0,0},
 					{0,0,0,0,1,0,0,1,0,0,0,0},
@@ -189,17 +148,22 @@ public class Pattern {
 					{0,0,0,0,1,0,0,1,0,0,0,0},
 					{0,0,0,0,0,1,1,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
+					break;
 			default:
-				return null;
+				break;
 		}
+		return r > 0 ? rotateMatrixLeft(arr,r) : arr;
 	}
 	
 	// Return 2x3 oscillator pattern as a 2D array
-	public static int[][] getOscillator(Oscillator_2x3 osc, int r){
-		switch(osc){
+	public static int[][] getOscillator(Oscillator_3x2 osc, int r)
+	{
+		int[][] arr = null;
+		
+		switch(osc)
+		{
 			case pentadecathlon:
-				int[][] arr = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -217,11 +181,10 @@ public class Pattern {
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr) : arr;
+					{0,0,0,0,0,0,0,0,0,0,0,0}}; 
+					break;
 			case coes_p8:
-				int[][] arr2 = new int[][]{
-					{0,0,0,0,0,0,0,0,0,0,0,0},
+				arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -238,18 +201,26 @@ public class Pattern {
 					{0,0,0,1,1,0,0,0,0,0,0,0},
 					{0,0,0,1,1,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0}}; 
+					break;
 			default:
-				return null;
+				break;
 		}
+		return r > 0 ? rotateMatrixLeft(arr,r) : arr;
 	}
 
 	// Return 2x4 oscillator pattern as a 2D array
-	public static int[][] getOscillator(Oscillator_2x4 osc, int r){
-		switch(osc){
+	public static int[][] getOscillator(Oscillator_2x4 osc, int r)
+	{
+		int[][] arr = null;
+		
+		switch(osc)
+		{
 			case caterer_on_figure_eight:
-				int[][] arr = new int[][]{
+				arr = new int[][]{
+					{0,0,0,0,0,0,0,0,0,0,0,0},
+					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,1,1,0,0,0,0,0,0,0},
 					{0,0,0,1,1,0,1,0,0,0,0,0},
@@ -271,12 +242,11 @@ public class Pattern {
 					{0,0,0,0,0,0,0,1,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr) : arr;
+					{0,0,0,0,0,0,0,0,0,0,0,0}}; 
+					break;
+					
 			case queen_bee_shuttle:
-				int[][] arr2 = new int[][]{
+				arr = new int[][]{
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
@@ -300,10 +270,11 @@ public class Pattern {
 					{0,0,0,0,0,0,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
 					{0,0,0,0,1,1,0,0,0,0,0,0},
-					{0,0,0,0,0,0,0,0,0,0,0,0}};
-					return r > 0 ? rotateMatrixLeft(arr2) : arr2;
+					{0,0,0,0,0,0,0,0,0,0,0,0}}; 
+					break;
 			default:
-				return null;
+				break;
 		}
+		return r > 0 ? rotateMatrixLeft(arr,r) : arr;
 	}
 }

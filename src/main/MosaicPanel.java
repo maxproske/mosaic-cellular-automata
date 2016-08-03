@@ -5,10 +5,9 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -16,10 +15,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import objects.GameOfLife;
 import utilities.Filter;
-import utilities.Pattern;
 
 @SuppressWarnings("serial")
-public class MosaicPanel extends JPanel implements MouseListener, MouseMotionListener{
+public class MosaicPanel extends JPanel {
 	
 		// Define instance variables
 		public static final int PANEL_W = 1000;
@@ -40,7 +38,6 @@ public class MosaicPanel extends JPanel implements MouseListener, MouseMotionLis
 		private BufferedImage preparedImage;
 		private BufferedImage populationImage;
 		private BufferedImage similarImage;
-		private BufferedImage oscillatorImage;
 		private BufferedImage nearestImage;
 		private GameOfLife gol;
 		
@@ -55,8 +52,6 @@ public class MosaicPanel extends JPanel implements MouseListener, MouseMotionLis
 			this.setBackground(Color.BLACK);
 			this.setVisible(true);
 			
-			addMouseListener(this);
-			addMouseMotionListener(this);
 			// Prepare image
 			prepareImage();
 			
@@ -65,6 +60,10 @@ public class MosaicPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			view_x = (int) (20 + lennaImage.getWidth() + 20 );
 			view_y = (int) (30);
+			
+			// Add the mouse adapters
+			addMouseListener(new MyMouseListener());
+			addMouseMotionListener(new MyMouseMotionListener());
 		}	
 		
 		// Prepare image for Game of Life simulation
@@ -104,8 +103,8 @@ public class MosaicPanel extends JPanel implements MouseListener, MouseMotionLis
 			// Upgrade the graphics tool
 			Graphics2D g2 = (Graphics2D)g;
 
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
+			// Enable anti-aliasing
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			
 			// Draw background
 			g2.setColor(new Color(0,0,0));
@@ -134,7 +133,7 @@ public class MosaicPanel extends JPanel implements MouseListener, MouseMotionLis
 			g2.drawString("game of life simulation", 20 + lennaImage.getWidth() + 20, (int)(30 + preparedImage.getHeight()*golScale + 25));
 			gol.drawCells(g2, 20 + lennaImage.getWidth() + 20, (int)(30 + preparedImage.getHeight()*golScale + 30), 2, (int)((view_x - 20 - lennaImage.getWidth() - 20)/golScale), (int)((view_y - 30)/golScale),(int)(view_w/golScale), (int)(view_h/golScale));
 			
-			//the thing
+			// Viewport tracker
 			g2.setColor(new Color(255,255,255));
 			g2.drawRect(view_x, view_y, view_w, view_h);
 			
@@ -146,40 +145,33 @@ public class MosaicPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		}
 
-		@Override public void mouseClicked(MouseEvent e) { }
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			if(e.getX() > view_x && e.getX() < view_x + view_w && e.getY() > view_y && e.getY() < view_y + view_h){
-				view_x_offset = e.getX() - view_x;
-				view_y_offset = e.getY() - view_y;
-				moving = true;
+		public class MyMouseListener extends MouseAdapter 
+		{
+			public void mousePressed(MouseEvent e) 
+			{
+				if(e.getX() > view_x && e.getX() < view_x + view_w && e.getY() > view_y && e.getY() < view_y + view_h){
+					view_x_offset = e.getX() - view_x;
+					view_y_offset = e.getY() - view_y;
+					moving = true;
+				}
+				
 			}
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			moving = false;
-			view_x_offset = 0;
-			view_y_offset = 0;
-		}
-
-		@Override public void mouseEntered(MouseEvent e) { }
-
-		@Override public void mouseExited(MouseEvent e) { }
-
-		@Override public void mouseMoved(MouseEvent e) { }
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			// TODO Auto-generated method stub
-			if(moving){
-				view_x = (int) ((!(e.getX() - view_x_offset > 20 + lennaImage.getWidth() + 20)) ?  20 + lennaImage.getWidth() + 20 : (!(e.getX() - view_x_offset < 20 + lennaImage.getWidth() + 20 + preparedImage.getWidth()*golScale - view_w)) ? 20 + lennaImage.getWidth() + 20 + preparedImage.getWidth()*golScale - view_w : e.getX() - view_x_offset);
-				view_y = (int) ((!(e.getY() - view_y_offset > 30)) ? 30 : (!(e.getY() - view_y_offset < 30 + preparedImage.getHeight()*golScale - view_h)) ? 30 + preparedImage.getHeight()*golScale - view_h : e.getY() - view_y_offset);
+			public void mouseReleased(MouseEvent e) 
+			{
+				moving = false;
+				view_x_offset = 0;
+				view_y_offset = 0;
 			}
 		}
-
+		
+		public class MyMouseMotionListener extends MouseMotionAdapter 
+		{
+			public void mouseDragged(MouseEvent e) 
+			{
+				if(moving){
+					view_x = (int) ((!(e.getX() - view_x_offset > 20 + lennaImage.getWidth() + 20)) ?  20 + lennaImage.getWidth() + 20 : (!(e.getX() - view_x_offset < 20 + lennaImage.getWidth() + 20 + preparedImage.getWidth()*golScale - view_w)) ? 20 + lennaImage.getWidth() + 20 + preparedImage.getWidth()*golScale - view_w : e.getX() - view_x_offset);
+					view_y = (int) ((!(e.getY() - view_y_offset > 30)) ? 30 : (!(e.getY() - view_y_offset < 30 + preparedImage.getHeight()*golScale - view_h)) ? 30 + preparedImage.getHeight()*golScale - view_h : e.getY() - view_y_offset);
+				}
+			}
+		}
 }

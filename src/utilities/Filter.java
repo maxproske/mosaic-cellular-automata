@@ -2,9 +2,6 @@ package utilities;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.stream.Stream;
-
 import utilities.Util;
 
 public class Filter {
@@ -61,22 +58,22 @@ public class Filter {
 						pattern = Pattern.getRandomOscillator(1,1); 
 						break; 
 					case 0xff00ffff: // cyan (2x2)
-						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.figure_eight,0); 
+						pattern = Pattern.getRandomOscillator(2,2);
 						break; 
 					case 0xff0000ff: // blue (2x2)
-						pattern = Pattern.getOscillator(Pattern.Oscillator_2x2.a_for_all,0); 
+						pattern = Pattern.getRandomOscillator(2,2);
 						break; 
 					case 0xff00ff00: // green (3x2)
-						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.pentadecathlon,0); 
+						pattern = Pattern.getRandomOscillator(3,2);
 						break; 
 					case 0xffff0000: // red (3x2)
-						pattern = Pattern.getOscillator(Pattern.Oscillator_2x3.coes_p8,0); 
+						pattern = Pattern.getRandomOscillator(3,2);
 						break; 
 					case 0xffffff00: // yellow (4x2)
-						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.queen_bee_shuttle,1);
+						pattern = Pattern.getRandomOscillator(4,2);
 						break; 
 					case 0xffff00ff: // purple (4x2)
-						pattern = Pattern.getOscillator(Pattern.Oscillator_2x4.caterer_on_figure_eight,1); 
+						pattern = Pattern.getRandomOscillator(4,2);
 						break; 
 					default:
 						break;
@@ -200,16 +197,21 @@ public class Filter {
 			for (int y = 0; y < imgHeight; y++) 
 			{
 				// Initialize pixel variables
+				int max_i = 4; // max accepted oscillator width
+				int max_j = 4; // max accepted oscillator height
+				int bb_i = 0; // calculates number of oscillator columns
+				int bb_j = 0; // calculates number of oscillator rows
+				boolean overlapped = false; // are oscillators overlapping
 				int rgb = src.getRGB(x,y);
-				int[][] rgbArr = new int[4][4];
+				int[][] rgbArr = new int[max_i][max_j];
 				
 				// Create array of neighbors (1 to the right, 1 to the bottom, 1 to the bottom right)
-				for (int i=0; i<4; i++)
+				for (int i=0; i<max_i; i++)
 				{
 					// Get x-position
 					int xPos = x+i;
 					
-					for (int j=0; j<4; j++)
+					for (int j=0; j<max_j; j++)
 					{
 						// Get y-position
 						int yPos = y+j;
@@ -221,86 +223,70 @@ public class Filter {
 						}
 					}
 				}
-				
-				// Assign rgb values based on neighbor count
-				int max_i = 0;
-				int max_j = 0;
-				
+
 				// Determine the pattern
-				if (rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && 
-					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff) {
-						rgb = 0xff00ffff; // cyan (2x2)
-						max_i = 2;
-						max_j = 2;
-				} else if (
-					rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && 
-					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6) {
-						rgb = 0xff0000ff; // blue (2x2)
-						max_i = 2;
-						max_j = 2;
-				} else if (
-					rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && 
-					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
-						rgb = 0xff00ff00; // green (3x2)
-						max_i = 3;
-						max_j = 2;
-				} else if (
-					rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && 
-					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
-						rgb = 0xffff0000; // red (3x2)
-						max_i = 3;
-						max_j = 2;
-				} else if (
-					rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && 
-					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
-					rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && 
-					rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
-						rgb = 0xffffff00; // yellow (4x2)
-						max_i = 2;
-						max_j = 4;
-				} else if (
-					rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && 
-					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
-					rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && 
-					rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
-						rgb = 0xffff00ff; // purple (4x2)
-						max_i = 2;
-						max_j = 4;
+				if (rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff){
+					rgb = 0xff00ffff; // cyan (2x2)
+					bb_i = 2;
+					bb_j = 2;
+				} else if (rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6){
+					rgb = 0xff0000ff; // blue (2x2)
+					bb_i = 2;
+					bb_j = 2;
+				} else if (rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
+					rgb = 0xff00ff00; // green (3x2)
+					bb_i = 3;
+					bb_j = 2;
+				} else if (rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
+					rgb = 0xffff0000; // red (3x2)
+					bb_i = 3;
+					bb_j = 2;
+				} else if (rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+					rgb = 0xffffff00; // yellow (4x2)
+					bb_i = 2;
+					bb_j = 4;
+				} else if (rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+					rgb = 0xffff00ff; // purple (4x2)
+					bb_i = 2;
+					bb_j = 4;
 				} else {
 					rgb = 0xff000000; // default to black
 				}
-				
-				// zero-out all positions past the oscillator bounding box
-				for (int i = max_i; i < 4; i++){
-					for (int j = max_j; j < 4; j++){
-						rgbArr[i][j] = 0;
-					}
-				}
-				
+
 				// Set flag if it's drawing over top of something
-				int flag = 0;
-				for (int i = 0; i < max_i; i++){
-					for (int j = 0; j < max_j; j++){
-						if (rgb != 0xff000000 && rgbArr[0][0] != 0) {
-							if(copy.getRGB(x+j, y+i) != 0xff000000) {
-								flag = 1;
+				for (int i = 0; i < max_i; i++) 
+				{
+					for (int j = 0; j < max_j; j++) 
+					{
+						// If the position is within the oscillator bounding box
+						if (i < bb_i && j < bb_j) 
+						{
+							if (rgb != 0xff000000 && rgbArr[0][0] != 0 && copy.getRGB(x+j, y+i) != 0xff000000) 
+							{
+								overlapped = true;
 							}
+						} else {
+							rgbArr[i][j] = 0; // zero-out all positions past the oscillator bounding box
 						}
 					}
 				}
 				
-				// If it's not drawing over top of something, paint
-				if (flag != 1) {
-					result.setRGB(x, y, new Color(rgb).getRGB()); // push color to final result
-					for (int i = 0; i < max_i; i++){
-						for (int j = 0; j < max_j; j++){
+				// If it's not drawing over top of something, push color to final result
+				if (!overlapped) 
+				{
+					result.setRGB(x, y, new Color(rgb).getRGB());
+					for (int i = 0; i < bb_i; i++)
+					{
+						for (int j = 0; j < bb_j; j++)
+						{
 							copy.setRGB(x+j, y+i, new Color(rgb).getRGB());
 						}
 					}
 				}
 				
 				// if the space is still empty, paint the dither pattern that would have been here
-				if (copy.getRGB(x, y) == 0xff000000 && src.getRGB(x, y) != 0xff000000) {
+				if (copy.getRGB(x, y) == 0xff000000 && src.getRGB(x, y) != 0xff000000) 
+				{
 					copy.setRGB(x, y, new Color(0xffffffff).getRGB());
 					result.setRGB(x, y, new Color(0xffffffff).getRGB()); // push white pixels to final result
 				}
