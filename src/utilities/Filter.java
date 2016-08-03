@@ -13,27 +13,29 @@ public class Filter {
 	public static BufferedImage dither(BufferedImage src)
 	{
 		// Create a copy of the image
-		BufferedImage copy = new BufferedImage(src.getWidth(),src.getHeight(), src.getType());
+		int imgWidth = src.getWidth();
+		int imgHeight = src.getHeight();
+		BufferedImage copy = new BufferedImage(imgWidth,imgHeight, src.getType());
 		
 		// Bayer matrix
 		int[] dithers = new int[]{ 1, 33, 9, 41, 3,  35, 11, 43, 49, 17, 57, 25, 51, 19, 59, 27, 13, 45, 5, 37, 15, 47, 7, 39, 61, 29, 53, 21, 63, 31, 55, 23, 4, 36, 12, 44, 2, 34, 10, 42, 52, 20, 60, 28, 50, 18, 58, 26, 16, 48, 8, 40, 14, 46, 6, 38, 64, 32, 56, 24, 62, 30, 54, 22 };		
 		int threshold = 16; // Controls the white and black points in the image	
 		int tolerance = 2; // Controls the sensitivity of the filter
 		
-		for (int y = 0; y < src.getHeight(); y++) 
+		for (int x = 0; x < imgWidth; x++) 
 		{
-			for (int x = 0; x < src.getWidth(); x++) 
+			for (int y = 0; y < imgHeight; y++) 
 			{
 				int rgb = src.getRGB(x, y);
 				int dither = dithers[(x & 7) + ((y & 7) << 3)]; 
 				
 				// Set all pixel values above the tolerance threshold to 0
-				if ((Util.getRed(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
-					(Util.getGreen(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
-					(Util.getBlue(rgb)	+ dither * 256 / threshold) > 0xff * tolerance)
-					rgb = 0;
+				int value = (
+						(Util.getRed(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
+						(Util.getGreen(rgb)	+ dither * 256 / threshold) > 0xff * tolerance || 
+						(Util.getBlue(rgb)	+ dither * 256 / threshold) > 0xff * tolerance) ? 0 : rgb;
 				
-				copy.setRGB(x, y, new Color(rgb).getRGB());
+				copy.setRGB(x, y, new Color(value).getRGB());
 			}
 		}
 		return copy; 
@@ -82,38 +84,37 @@ public class Filter {
 						break;
 				}
 				
-				int rows = pattern.length;
-				//int flag =0;
-				
-				if (rows > 0) 
+				if (pattern.length > 0) 
 				{
+					int rows = pattern.length;
 					int cols = pattern[0].length;
-
-					for(int i=0; i<cols-1; i++)
+		
+					// trim one column for denser patterns
+					for(int i = 0; i < cols-1; i++) 
 					{
 						// Get x-position
 						int xPos = x*atomicUnit+i;
 					
-						for(int j=0; j<rows-1; j++) 
+						// trim one row for denser patterns
+						for(int j=0; j < rows-1; j++) 
 						{
 							// Get y-position
 							int yPos = y*atomicUnit+j;
 	
-							// If it is in bounds
-							if (xPos < w*6 && yPos < h*6) 
+							// If the cell is in bounds
+							if (xPos < w*atomicUnit && yPos < h*atomicUnit) 
 							{
 								// Calculate alpha value
 								//int new_rgb = (pattern[j][i] == 1) ? matte.getRGB(x,y) : matte.getRGB(x,y) & 0xffffff;
-								int new_rgb = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
+								int value = (pattern[j][i] == 1) ? src.getRGB(x,y) : src.getRGB(x,y) & 0xffffff;
 									
 								// set pixel value
-								copy.setRGB(xPos, yPos, new_rgb);
+								copy.setRGB(xPos, yPos, value);
 							}
 						}
 					}
 				}
-			}
-			
+			}	
 		}	
 		return copy;
 	}
@@ -162,21 +163,24 @@ public class Filter {
 							}
 						}
 					}
-					// Assign rgb values based on neighbor count
-					switch(neighbors)
-					{
-						case 0: rgb = 0xff1c1c1c; break;
-						case 1: rgb = 0xff555555; break;
-						case 2: rgb = 0xff8d8d8d; break;
-						case 3: rgb = 0xffc6c6c6; break;
-						case 4: rgb = 0xffffffff; break;
-						default:rgb = 0xffff0000; break; // can't have more than 4 neighbors
-					}
 				} else {
-					rgb = 0xff000000; 
+					neighbors = -1;
 				}
+				
+				// Assign rgb values based on neighbor count (can't have more than 4 neighbors)
+				int value = 0;
+				switch(neighbors)
+				{
+					case 0: value = 0xff1c1c1c; break;
+					case 1: value = 0xff555555; break;
+					case 2: value = 0xff8d8d8d; break;
+					case 3: value = 0xffc6c6c6; break;
+					case 4: value = 0xffffffff; break;
+					default: value = 0xff000000; break;
+				}
+				
 				// Set pixel value
-				copy.setRGB(x, y, new Color(rgb).getRGB());
+				copy.setRGB(x, y, new Color(value).getRGB());
 			}
 		}
 		return copy; 
@@ -222,60 +226,50 @@ public class Filter {
 				int max_i = 0;
 				int max_j = 0;
 				
-				// find 2x2 patterns
-				if (	rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && 
-						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff) {
-					rgb = 0xff00ffff; // cyan
-					max_i = 2;
-					max_j = 2;
+				// Determine the pattern
+				if (rgbArr[0][0] == 0xffc6c6c6 && rgbArr[0][1] == 0xff000000 && 
+					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff) {
+						rgb = 0xff00ffff; // cyan (2x2)
+						max_i = 2;
+						max_j = 2;
 				} else if (
-						rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && 
-						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6) {
-					rgb = 0xff0000ff; // blue
-					max_i = 2;
-					max_j = 2;
-				} 
-				// find 3x2 patterns
-				else if (
-						rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && 
-						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
-					rgb = 0xff00ff00; // green
-					max_i = 3;
-					max_j = 2;
+					rgbArr[0][0] == 0xffffffff && rgbArr[0][1] == 0xff000000 && 
+					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffc6c6c6) {
+						rgb = 0xff0000ff; // blue (2x2)
+						max_i = 2;
+						max_j = 2;
 				} else if (
-						rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && 
-						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
-					rgb = 0xffff0000; // red
-					max_i = 3;
-					max_j = 2;
-				} 
-				// find 4x2 patterns
-				else if (
-						rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && 
-						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
-						rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && 
-						rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
-					rgb = 0xffffff00; // yellow
-					max_i = 2;
-					max_j = 4;
+					rgbArr[0][0] == 0xff1c1c1c && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff1c1c1c && 
+					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {			
+						rgb = 0xff00ff00; // green (3x2)
+						max_i = 3;
+						max_j = 2;
 				} else if (
-						rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && 
-						rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
-						rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && 
-						rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
-					rgb = 0xffff00ff; // purple
-					max_i = 2;
-					max_j = 4;
-				}
-				
-				// unassigned patterns
-				else if (rgb > 0xff000000){
-					rgb = 0xff000000;
-				} 
-				
-				// default to black
-				else {
-					rgb = 0xff000000;
+					rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && rgbArr[0][2] == 0xff555555 && 
+					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xff000000 && rgbArr[1][2] == 0xff000000) {
+						rgb = 0xffff0000; // red (3x2)
+						max_i = 3;
+						max_j = 2;
+				} else if (
+					rgbArr[0][0] == 0xff555555 && rgbArr[0][1] == 0xff000000 && 
+					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
+					rgbArr[2][0] == 0xff555555 && rgbArr[2][1] == 0xff000000 && 
+					rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+						rgb = 0xffffff00; // yellow (4x2)
+						max_i = 2;
+						max_j = 4;
+				} else if (
+					rgbArr[0][0] == 0xff8d8d8d && rgbArr[0][1] == 0xff000000 && 
+					rgbArr[1][0] == 0xff000000 && rgbArr[1][1] == 0xffffffff && 
+					rgbArr[2][0] == 0xff8d8d8d && rgbArr[2][1] == 0xff000000 && 
+					rgbArr[3][0] == 0xff000000 && rgbArr[3][1] == 0xff000000){
+						rgb = 0xffff00ff; // purple (4x2)
+						max_i = 2;
+						max_j = 4;
+				} else if (rgb > 0xff000000){
+					rgb = 0xff000000; // unassigned patterns
+				} else {
+					rgb = 0xff000000; // default to black
 				}
 				
 				// zero-out all positions past the oscillator bounding box
