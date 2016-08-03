@@ -41,10 +41,10 @@ public class GameOfLife {
 	
 	public void drawCells(Graphics2D g, int x, int y, double s, int origX, int origY, int width, int height){
 		AffineTransform tx = g.getTransform();
-		width *= 6;
-		height *= 6;
-		origY *= 6;
-		origX *= 6;
+//		width *= 6;
+//		height *= 6;
+//		origY *= 6;
+//		origX *= 6;
 		g.translate(x - origX*s, y - origY*s);
 		g.scale(s, s);
 		for(int i=origX;i<origX + width;i++){
