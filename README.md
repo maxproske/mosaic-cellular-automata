@@ -1,7 +1,7 @@
 # Mosaic Cellular Automata
 Given any image as input, our method creates an initial grid of alive and dead pixels, and runs the result as a “Game of Life” simulation, in which cells are killed or born depending on the state of their neighbours. Our pattern sustains itself indefinitely, maintaining the integrity of the image.
 
-For more information, please view our [presentation slides](https://github.com/maxproske/mosaic-cellular-automata/raw/master/public/MCA_Presentation_Slides.pdf) or [research paper](https://github.com/maxproske/mosaic-cellular-automata/raw/master/public/MCA_Paper.pdf).
+For more information, please download our [presentation slides](https://github.com/maxproske/mosaic-cellular-automata/raw/master/public/MCA_Presentation_Slides.pdf) or [research paper](https://github.com/maxproske/mosaic-cellular-automata/raw/master/public/MCA_Paper.pdf).
 
 ![Mattes](https://github.com/maxproske/mosaic-cellular-automata/raw/master/public/mattes.png)
 
